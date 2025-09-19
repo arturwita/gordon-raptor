@@ -2,26 +2,23 @@ package main
 
 import (
 	"fmt"
-	cfg "gordon-raptor/src/config"
-	"net/http"
+	"gordon-raptor/src/config"
+	"gordon-raptor/src/routes"
 
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	config, err := cfg.LoadConfig()
+	cfg, err := config.LoadConfig()
 	if err != nil {
 		return
 	}
 
 	router := gin.Default()
-	router.GET("/ping", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "pong",
-		})
-	})
+	router.SetTrustedProxies([]string{cfg.TrustedProxy})
 
-	port := fmt.Sprintf(":%v", config.Port)
+	routes.RegisterRoutes(router)
 
+	port := fmt.Sprintf(":%v", cfg.Port)
 	router.Run(port)
 }

@@ -5,6 +5,8 @@ import (
 	config "gordon-raptor/src/config"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestGetEnvUtils(t *testing.T) {
@@ -21,9 +23,7 @@ func TestGetEnvUtils(t *testing.T) {
 			result := config.GetStringEnv(VARIABLE_NAME, defaultValue)
 
 			// then
-			if result != expected {
-				t.Errorf("Test failed. Expected: = %s; Actual: %s", expected, result)
-			}
+			assert.Equal(t, result, expected)
 		})
 
 		t.Run("returns the default value if env var is empty", func(t *testing.T) {
@@ -35,9 +35,7 @@ func TestGetEnvUtils(t *testing.T) {
 			result := config.GetStringEnv(VARIABLE_NAME, expected)
 
 			// then
-			if result != expected {
-				t.Errorf("Test failed. Expected: = %s; Actual: %s", expected, result)
-			}
+			assert.Equal(t, result, expected)
 		})
 	})
 
@@ -52,9 +50,7 @@ func TestGetEnvUtils(t *testing.T) {
 			result := config.GetIntEnv(VARIABLE_NAME, defaultValue)
 
 			// then
-			if result != expected {
-				t.Errorf("Test failed. Expected: = %d; Actual: %d", expected, result)
-			}
+			assert.Equal(t, result, expected)
 		})
 
 		t.Run("returns the default value if env var is empty", func(t *testing.T) {
@@ -66,9 +62,7 @@ func TestGetEnvUtils(t *testing.T) {
 			result := config.GetIntEnv(VARIABLE_NAME, expected)
 
 			// then
-			if result != expected {
-				t.Errorf("Test failed. Expected: = %d; Actual: %d", expected, result)
-			}
+			assert.Equal(t, result, expected)
 		})
 
 		t.Run("returns the default value when tried to parse to an integer", func(t *testing.T) {
@@ -91,9 +85,7 @@ func TestGetEnvUtils(t *testing.T) {
 					result := config.GetIntEnv(VARIABLE_NAME, expected)
 
 					// then
-					if result != expected {
-						t.Errorf("Test case '%s' failed. Expected: = %d; Actual: %d", testCase.name, expected, result)
-					}
+					assert.Equal(t, result, expected)
 				})
 			}
 		})
