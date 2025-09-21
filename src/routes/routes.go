@@ -10,5 +10,6 @@ func RegisterRoutes(router *gin.Engine) {
 	api := router.Group("/api")
 	{
 		api.GET("/ping", handlers.Ping)
+		api.POST("/cook", handlers.Cook)
 	}
 }
