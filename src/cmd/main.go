@@ -30,7 +30,7 @@ func main() {
 	router := gin.Default()
 	router.SetTrustedProxies([]string{cfg.TrustedProxy})
 
-	routes.RegisterRoutesFactory(deps.RecipeRepository)(router)
+	routes.RegisterRoutesFactory(deps)(router)
 
 	port := fmt.Sprintf(":%v", cfg.Port)
 	router.Run(port)
