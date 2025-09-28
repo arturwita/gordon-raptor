@@ -32,5 +32,5 @@ func LoadConfig() (*Config, error) {
 		}
 	}
 
-	return &config, nil	
+	return &config, nil
 }
