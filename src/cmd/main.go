@@ -7,16 +7,9 @@ import (
 	"gordon-raptor/src/routes"
 
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 )
 
 func main() {
-	// Load .env file
-	err := godotenv.Load()
-	if err != nil {
-		fmt.Println("Warning: Error loading .env file:", err)
-	}
-
 	cfg, err := config.LoadConfig()
 	if err != nil {
 		return

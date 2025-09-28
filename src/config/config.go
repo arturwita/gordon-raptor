@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/joho/godotenv"
 )
 
 type Config struct {
@@ -14,6 +15,11 @@ type Config struct {
 }
 
 func LoadConfig() (*Config, error) {
+	err := godotenv.Load()
+	if err != nil {
+		fmt.Println("Error loading .env file:", err)
+	}
+
 	config := Config{
 		Port:         GetIntEnv("PORT", 8000),
 		MongoURL:     GetStringEnv("MONGO_URL", ""),
@@ -21,7 +27,7 @@ func LoadConfig() (*Config, error) {
 	}
 
 	validate := validator.New()
-	err := validate.Struct(config)
+	err = validate.Struct(config)
 
 	if err != nil {
 		for _, err := range err.(validator.ValidationErrors) {
