@@ -1,5 +1,5 @@
 package dtos
 
-type CookDto struct {
+type CreateRecipeDto struct {
 	Recipe string `form:"recipe" json:"recipe" binding:"required"`
 }

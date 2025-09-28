@@ -13,10 +13,10 @@ type Config struct {
 	TrustedProxy string `validate:"required"`
 }
 
-func LoadConfig() (Config, error) {
+func LoadConfig() (*Config, error) {
 	config := Config{
 		Port:         GetIntEnv("PORT", 8000),
-		MongoURL:     GetStringEnv("MONGO_URL", "example"),
+		MongoURL:     GetStringEnv("MONGO_URL", ""),
 		TrustedProxy: GetStringEnv("TRUSTED_PROXY", "127.0.0.1"),
 	}
 
@@ -26,9 +26,9 @@ func LoadConfig() (Config, error) {
 	if err != nil {
 		for _, err := range err.(validator.ValidationErrors) {
 			fmt.Printf("Field '%s' failed validation rule '%s'\n", err.Field(), err.Tag())
-			return config, errors.New("Config validation failed")
+			return nil, errors.New("Config validation failed")
 		}
 	}
 
-	return config, nil
+	return &config, nil
 }
