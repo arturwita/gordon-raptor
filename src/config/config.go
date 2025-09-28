@@ -15,8 +15,7 @@ type Config struct {
 }
 
 func LoadConfig() (*Config, error) {
-	err := godotenv.Load()
-	if err != nil {
+	if err := godotenv.Load(); err != nil {
 		fmt.Println("Error loading .env file:", err)
 	}
 
@@ -26,15 +25,12 @@ func LoadConfig() (*Config, error) {
 		TrustedProxy: GetStringEnv("TRUSTED_PROXY", "127.0.0.1"),
 	}
 
-	validate := validator.New()
-	err = validate.Struct(config)
-
-	if err != nil {
+	if err := validator.New().Struct(config); err != nil {
 		for _, err := range err.(validator.ValidationErrors) {
 			fmt.Printf("Field '%s' failed validation rule '%s'\n", err.Field(), err.Tag())
 			return nil, errors.New("Config validation failed")
 		}
 	}
 
-	return &config, nil
+	return &config, nil	
 }
