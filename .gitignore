@@ -1,5 +1,11 @@
+# JetBrains IDEs
 .idea/
-.vscode
-tmp/
-/bin/
-.env
+*.iml
+out/
+
+# Cursor
+.cursor/
+
+# VS Code
+.vscode/
+.history/
