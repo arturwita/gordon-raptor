@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func CreateRecipeFactory(repo repositories.RecipeRepository) gin.HandlerFunc {
+func NewCreateRecipe(repo repositories.RecipeRepository) gin.HandlerFunc {
 	return func(context *gin.Context) {
 		var recipeDto dtos.CreateRecipeDto
 		if err := context.BindJSON(&recipeDto); err != nil {

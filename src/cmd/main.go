@@ -12,18 +12,20 @@ import (
 func main() {
 	cfg, err := config.LoadConfig()
 	if err != nil {
+		fmt.Println("Error loading config:", err)
 		return
 	}
 
-	deps, err := di.DIContainerFactory(cfg)
+	deps, err := di.NewDIContainer(cfg)
 	if err != nil {
+		fmt.Println("Error creating DI container:", err)
 		return
 	}
 
 	router := gin.Default()
 	router.SetTrustedProxies([]string{cfg.TrustedProxy})
 
-	routes.RegisterRoutesFactory(deps)(router)
+	routes.RegisterRoutes(deps)(router)
 
 	port := fmt.Sprintf(":%v", cfg.Port)
 	router.Run(port)

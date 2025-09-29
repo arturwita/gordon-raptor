@@ -7,12 +7,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterRoutesFactory(deps *di.DIContainer) func(router *gin.Engine) {
+func RegisterRoutes(deps *di.DIContainer) func(router *gin.Engine) {
 	return func(router *gin.Engine) {
 		api := router.Group("/api")
 		{
 			api.GET("/ping", handlers.Ping)
-			api.POST("/recipes", handlers.CreateRecipeFactory(deps.RecipeRepository))
+			api.POST("/recipes", handlers.NewCreateRecipe(deps.RecipeRepository))
 		}
 	}
 }

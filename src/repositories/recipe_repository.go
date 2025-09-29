@@ -2,7 +2,7 @@ package repositories
 
 import (
 	"context"
-
+	"fmt"
 	"gordon-raptor/src/config"
 	"gordon-raptor/src/dtos"
 
@@ -18,13 +18,14 @@ type recipeRepository struct {
 	collection *mongo.Collection
 }
 
-func RecipeRepositoryFactory(client *mongo.Client, cfg *config.Config) RecipeRepository {
+func NewRecipeRepository(client *mongo.Client, cfg *config.Config) (RecipeRepository, error) {
 	parsedDbUrl, err := connstring.ParseAndValidate(cfg.MongoURL)
 	if err != nil {
-		return nil
+		fmt.Println("Error parsing MongoDB URL:", err)
+		return nil, err
 	}
 
-	return &recipeRepository{client.Database(parsedDbUrl.Database).Collection("recipes")}
+	return &recipeRepository{client.Database(parsedDbUrl.Database).Collection("recipes")}, nil
 }
 
 func (repo *recipeRepository) CreateRecipe(recipe dtos.CreateRecipeDto) error {
