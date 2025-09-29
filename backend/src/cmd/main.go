@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"gordon-raptor/src/config"
+	"gordon-raptor/src/pkg/config"
 	"gordon-raptor/src/pkg/di"
 	"gordon-raptor/src/routes"
 

@@ -1,7 +1,7 @@
 package di
 
 import (
-	"gordon-raptor/src/config"
+	"gordon-raptor/src/pkg/config"
 	"gordon-raptor/src/pkg/db"
 	"gordon-raptor/src/repositories"
 )

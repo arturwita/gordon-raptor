@@ -3,8 +3,8 @@ package repositories
 import (
 	"context"
 	"fmt"
-	"gordon-raptor/src/config"
 	"gordon-raptor/src/dtos"
+	"gordon-raptor/src/pkg/config"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/x/mongo/driver/connstring"
