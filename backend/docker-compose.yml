@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+  gordon-raptor:
+    build: .
+    container_name: gordon-raptor
+    command: air -c .air.toml
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - go-mod-cache:/go/pkg/mod
+      - go-build-cache:/root/.cache/go-build
+    env_file:
+      - .env
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:6
+    container_name: mongo
+    healthcheck:
+      test: mongosh --quiet --host mongo:27017 --eval 'db.runCommand("ping").ok'
+      interval: 3s
+      timeout: 30s
+      retries: 5
+      start_period: 3s
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:
+  go-mod-cache:
+  go-build-cache:
