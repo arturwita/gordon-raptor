@@ -1,13 +1,13 @@
 package di
 
 import (
-	"gordon-raptor/src/pkg/config"
+	"gordon-raptor/src/internal/config"
+	"gordon-raptor/src/internal/recipes"
 	"gordon-raptor/src/pkg/db"
-	"gordon-raptor/src/repositories"
 )
 
 type DIContainer struct {
-	RecipeRepository repositories.RecipeRepository
+	RecipeRepository recipes.RecipeRepository
 	Config           *config.Config
 }
 
@@ -17,7 +17,7 @@ func NewDIContainer(cfg *config.Config) (*DIContainer, error) {
 		return nil, err
 	}
 
-	recipeRepository, err := repositories.NewRecipeRepository(client, cfg)
+	recipeRepository, err := recipes.NewRecipeRepository(client, cfg)
 	if err != nil {
 		return nil, err
 	}

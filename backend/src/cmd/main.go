@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"gordon-raptor/src/pkg/config"
-	"gordon-raptor/src/pkg/di"
-	"gordon-raptor/src/routes"
+	"gordon-raptor/src/internal/config"
+	"gordon-raptor/src/internal/di"
+	"gordon-raptor/src/internal/router"
 
 	"github.com/gin-gonic/gin"
 )
@@ -22,11 +22,11 @@ func main() {
 		return
 	}
 
-	router := gin.Default()
-	router.SetTrustedProxies([]string{cfg.TrustedProxy})
+	server := gin.Default()
+	server.SetTrustedProxies([]string{cfg.TrustedProxy})
 
-	routes.RegisterRoutes(deps)(router)
+	router.RegisterRoutes(deps)(server)
 
 	port := fmt.Sprintf(":%v", cfg.Port)
-	router.Run(port)
+	server.Run(port)
 }

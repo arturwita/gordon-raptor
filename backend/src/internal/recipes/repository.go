@@ -1,17 +1,16 @@
-package repositories
+package recipes
 
 import (
 	"context"
 	"fmt"
-	"gordon-raptor/src/dtos"
-	"gordon-raptor/src/pkg/config"
+	"gordon-raptor/src/internal/config"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/x/mongo/driver/connstring"
 )
 
 type RecipeRepository interface {
-	CreateRecipe(recipe dtos.CreateRecipeDto) error
+	CreateRecipe(recipe CreateRecipeDto) error
 }
 
 type recipeRepository struct {
@@ -28,7 +27,7 @@ func NewRecipeRepository(client *mongo.Client, cfg *config.Config) (RecipeReposi
 	return &recipeRepository{client.Database(parsedDbUrl.Database).Collection("recipes")}, nil
 }
 
-func (repo *recipeRepository) CreateRecipe(recipe dtos.CreateRecipeDto) error {
+func (repo *recipeRepository) CreateRecipe(recipe CreateRecipeDto) error {
 	_, err := repo.collection.InsertOne(context.Background(), recipe)
 	return err
 }
