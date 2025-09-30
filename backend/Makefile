@@ -1,5 +1,5 @@
 build:
-	go build -o bin/app ./src/cmd
+	go build -o ./bin/main ./src/cmd
 
 run:
 	go run ./src/cmd/main.go
