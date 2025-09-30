@@ -5,5 +5,5 @@ type CreateRecipeDto struct {
 }
 
 type CreateRecipeResponseDto struct {
-	Result string 
+	Result string `json:"result"`
 }
