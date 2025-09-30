@@ -4,8 +4,11 @@ build:
 run:
 	go run ./src/cmd/main.go
 
-test:
-	go test ./...
+unit_tests:
+	go test -v ./src/internal/tests/unit...
+
+e2e_tests:
+	go test -v ./src/internal/tests/e2e...
 
 lint:
 	goimports -w .

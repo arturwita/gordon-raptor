@@ -1,4 +1,4 @@
-package recipes_e2e_tests
+package tests_utils
 
 import (
 	"context"

@@ -8,5 +8,13 @@ import (
 )
 
 func RegisterRoutes(router *gin.Engine, deps *di.DIContainer) {
-	router.POST("/recipes", recipes.CreateRecipeHandler(deps.RecipeService))
+	recipesEndpoints := router.Group("/recipes") 
+	{
+		recipesEndpoints.POST("/", recipes.CreateRecipeHandler(deps.RecipeService))
+	}
+
+	// authEndpoints := router.Group("/auth")
+	// {
+	// 	authEndpoints.POST("/login", auth.CreateLoginHandler(deps.AuthService))
+	// }
 }
