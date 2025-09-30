@@ -1,11 +1,11 @@
-package recipes_e2e_tests
+package tests_e2e
 
 import (
 	"testing"
 
 	"gordon-raptor/src/internal/app"
 	"gordon-raptor/src/internal/config"
-	"gordon-raptor/src/internal/recipes"
+	"gordon-raptor/src/internal/contracts"
 
 	"github.com/stretchr/testify/assert"
 
@@ -22,7 +22,7 @@ func TestCreateRecipe(t *testing.T) {
 
 	t.Run("saves the recipe in the database and returns 201", func(t *testing.T) {
 		// given
-		reqBody, _ := json.Marshal(recipes.CreateRecipeDto{
+		reqBody, _ := json.Marshal(contracts.CreateRecipeDto{
 			Recipe: "pasta",
 		})
 
@@ -35,7 +35,7 @@ func TestCreateRecipe(t *testing.T) {
 		// then
 		assert.Equal(t, http.StatusCreated, response.Code)
 
-		var responseBody recipes.CreateRecipeResponseDto
+		var responseBody contracts.CreateRecipeResponseDto
 		err := json.Unmarshal(response.Body.Bytes(), &responseBody)
 
 		assert.NoError(t, err)

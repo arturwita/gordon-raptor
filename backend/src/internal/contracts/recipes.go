@@ -1,4 +1,4 @@
-package recipes
+package contracts
 
 type CreateRecipeDto struct {
 	Recipe string `form:"recipe" json:"recipe" binding:"required"`
