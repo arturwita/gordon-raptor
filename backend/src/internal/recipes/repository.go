@@ -2,7 +2,6 @@ package recipes
 
 import (
 	"context"
-	"fmt"
 
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -20,7 +19,7 @@ func NewRecipeRepository(database *mongo.Database) (RecipeRepository, error) {
 }
 
 func (repo *recipeRepository) CreateRecipe(dto CreateRecipeDto) (string, error) {
-	value, err := repo.collection.InsertOne(context.Background(), dto)
+	_, err := repo.collection.InsertOne(context.Background(), dto)
 	if err != nil {
 		return "failure", err
 	}
