@@ -2,11 +2,8 @@ package main
 
 import (
 	"fmt"
+	"gordon-raptor/src/internal/app"
 	"gordon-raptor/src/internal/config"
-	"gordon-raptor/src/internal/di"
-	"gordon-raptor/src/internal/router"
-
-	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -16,16 +13,11 @@ func main() {
 		return
 	}
 
-	deps, err := di.NewDIContainer(cfg)
+	server, err := app.NewApp(cfg)
 	if err != nil {
-		fmt.Println("Error creating DI container:", err)
+		fmt.Println("Error creating app:", err)
 		return
 	}
-
-	server := gin.Default()
-	server.SetTrustedProxies([]string{cfg.TrustedProxy})
-
-	router.RegisterRoutes(deps)(server)
 
 	port := fmt.Sprintf(":%v", cfg.Port)
 	server.Run(port)

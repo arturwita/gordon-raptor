@@ -3,31 +3,30 @@ package recipes
 import (
 	"context"
 	"fmt"
-	"gordon-raptor/src/internal/config"
 
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/x/mongo/driver/connstring"
 )
 
 type RecipeRepository interface {
-	CreateRecipe(recipe CreateRecipeDto) error
+	CreateRecipe(dto CreateRecipeDto) (string, error)
 }
 
 type recipeRepository struct {
 	collection *mongo.Collection
 }
 
-func NewRecipeRepository(client *mongo.Client, cfg *config.Config) (RecipeRepository, error) {
-	parsedDbUrl, err := connstring.ParseAndValidate(cfg.MongoURL)
-	if err != nil {
-		fmt.Println("Error parsing MongoDB URL:", err)
-		return nil, err
-	}
-
-	return &recipeRepository{client.Database(parsedDbUrl.Database).Collection("recipes")}, nil
+func NewRecipeRepository(database *mongo.Database) (RecipeRepository, error) {
+	return &recipeRepository{database.Collection("recipes")}, nil
 }
 
-func (repo *recipeRepository) CreateRecipe(recipe CreateRecipeDto) error {
-	_, err := repo.collection.InsertOne(context.Background(), recipe)
-	return err
+func (repo *recipeRepository) CreateRecipe(dto CreateRecipeDto) (string, error) {
+	value, err := repo.collection.InsertOne(context.Background(), dto)
+	if err != nil {
+		return "failure", err
+	}
+
+	fmt.Println("value", value)
+	fmt.Println("dto", dto)
+
+	return "success", nil
 }

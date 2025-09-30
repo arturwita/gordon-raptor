@@ -34,3 +34,9 @@ func LoadConfig() (*Config, error) {
 
 	return &config, nil
 }
+
+var TestConfig = &Config{
+	Port:         8000,
+	MongoURL:     "mongodb://localhost:27017/gordon_test",
+	TrustedProxy: "127.0.0.1",
+}
