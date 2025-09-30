@@ -25,8 +25,5 @@ func (repo *recipeRepository) CreateRecipe(dto CreateRecipeDto) (string, error) 
 		return "failure", err
 	}
 
-	fmt.Println("value", value)
-	fmt.Println("dto", dto)
-
 	return "success", nil
 }
