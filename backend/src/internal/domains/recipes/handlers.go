@@ -2,6 +2,7 @@ package recipes
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 
@@ -16,14 +17,20 @@ func CreateRecipeHandler(recipeService RecipeService) gin.HandlerFunc {
 			return
 		}
 
-		result, err := recipeService.CreateRecipe(dto)
+		recipe, err := recipeService.CreateRecipe(dto)
 		if err != nil {
 			context.JSON(http.StatusInternalServerError, contracts.ErrorResponse{Message: err.Error()})
 			return
 		}
 
 		context.JSON(http.StatusCreated, contracts.CreateRecipeResponseDto{
-			Result: result,
+			Recipe: &contracts.RecipeDto{
+				Id:          recipe.Id.Hex(),
+				Name:        recipe.Name,
+				Ingredients: recipe.Ingredients,
+				CreatedAt:   recipe.CreatedAt.Time().Format(time.RFC3339),
+				UpdatedAt:   recipe.UpdatedAt.Time().Format(time.RFC3339),
+			},
 		})
 	}
 }

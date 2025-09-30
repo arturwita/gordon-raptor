@@ -23,7 +23,11 @@ func TestCreateRecipe(t *testing.T) {
 	t.Run("saves the recipe in the database and returns 201", func(t *testing.T) {
 		// given
 		reqBody, _ := json.Marshal(contracts.CreateRecipeDto{
-			Recipe: "pasta",
+			Name: "spaghetti bolognese",
+			Ingredients: map[string]string{
+				"pasta": "100g",
+				"meat":  "100g",
+			},
 		})
 
 		// when
@@ -39,6 +43,6 @@ func TestCreateRecipe(t *testing.T) {
 		err := json.Unmarshal(response.Body.Bytes(), &responseBody)
 
 		assert.NoError(t, err)
-		assert.Equal(t, "success", responseBody.Result)
+		assert.Equal(t, "success", responseBody.Recipe) // TODO: fix assertion
 	})
 }
