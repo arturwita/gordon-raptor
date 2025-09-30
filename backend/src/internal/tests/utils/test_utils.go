@@ -1,4 +1,4 @@
-package test_utils
+package tests_utils
 
 import (
 	"context"
