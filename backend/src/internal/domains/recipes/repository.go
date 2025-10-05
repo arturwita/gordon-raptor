@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"gordon-raptor/src/internal/consts"
 	"gordon-raptor/src/internal/contracts"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -22,7 +23,7 @@ type recipeRepository struct {
 }
 
 func NewRecipeRepository(database *mongo.Database) (RecipeRepository, error) {
-	return &recipeRepository{database.Collection("recipes")}, nil
+	return &recipeRepository{database.Collection(consts.CollectionNames["recipes"])}, nil
 }
 
 func (repo *recipeRepository) CreateRecipe(dto contracts.CreateRecipeDto, ctx context.Context) (*RecipeModel, error) {
@@ -46,11 +47,12 @@ func (repo *recipeRepository) GetRecipes(paginationDto *contracts.PaginationDto,
 	skip := int64((paginationDto.Page - 1) * paginationDto.Limit)
 	limit := int64(paginationDto.Limit)
 	cursor, err := repo.collection.Find(ctx, bson.M{}, options.Find().SetSkip(skip).SetLimit(limit))
-
+	
 	if err != nil {
 		return nil, err
 	}
-	defer cursor.Close(ctx)
+
+	defer cursor.Close(ctx) 
 
 	var recipes []*RecipeModel
 	for cursor.Next(ctx) {
