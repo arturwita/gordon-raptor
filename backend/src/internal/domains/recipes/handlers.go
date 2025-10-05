@@ -1,8 +1,8 @@
 package recipes
 
 import (
+	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 
@@ -11,26 +11,40 @@ import (
 
 func CreateRecipeHandler(recipeService RecipeService) gin.HandlerFunc {
 	return func(context *gin.Context) {
+		ctx := context.Request.Context()
 		var dto contracts.CreateRecipeDto
 		if err := context.BindJSON(&dto); err != nil {
-			context.JSON(http.StatusBadRequest, contracts.ErrorResponse{Message: err.Error()})
+			context.JSON(http.StatusBadRequest, &contracts.ErrorResponse{Message: err.Error()})
 			return
 		}
 
-		recipe, err := recipeService.CreateRecipe(dto)
+		recipe, err := recipeService.CreateRecipe(dto, ctx)
 		if err != nil {
-			context.JSON(http.StatusInternalServerError, contracts.ErrorResponse{Message: err.Error()})
+			fmt.Println("Failed to create recipe", err)
+			context.JSON(http.StatusInternalServerError, &contracts.ErrorResponse{Message: err.Error()})
 			return
 		}
 
-		context.JSON(http.StatusCreated, contracts.CreateRecipeResponseDto{
-			Recipe: &contracts.RecipeDto{
-				Id:          recipe.Id.Hex(),
-				Name:        recipe.Name,
-				Ingredients: recipe.Ingredients,
-				CreatedAt:   recipe.CreatedAt.Time().Format(time.RFC3339),
-				UpdatedAt:   recipe.UpdatedAt.Time().Format(time.RFC3339),
-			},
+		context.JSON(http.StatusCreated, &contracts.CreateRecipeResponseDto{
+			Recipe: MapToRecipeDto(recipe),
+		})
+	}
+}
+
+func GetRecipesHandler(recipeService RecipeService) gin.HandlerFunc {
+	return func(context *gin.Context) {
+		ctx := context.Request.Context()
+		paginationDto := contracts.BindPagination(context)
+		
+		recipes, err := recipeService.GetRecipes(paginationDto, ctx)
+		if err != nil {
+			fmt.Println("Failed to get recipes", err)
+			context.JSON(http.StatusInternalServerError, &contracts.ErrorResponse{Message: err.Error()})
+			return
+		}
+
+		context.JSON(http.StatusOK, &contracts.GetRecipesResponseDto{
+			Recipes: MapRecipesToDtos(recipes),
 		})
 	}
 }

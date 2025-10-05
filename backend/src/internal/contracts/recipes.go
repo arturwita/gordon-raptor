@@ -16,3 +16,7 @@ type CreateRecipeDto struct {
 type CreateRecipeResponseDto struct {
 	Recipe *RecipeDto `json:"recipe"`
 }
+
+type GetRecipesResponseDto struct {
+	Recipes []*RecipeDto `json:"recipes"`
+}
