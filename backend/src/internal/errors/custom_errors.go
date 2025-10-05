@@ -15,12 +15,12 @@ type customErrorsMap = struct {
 
 type authErrorsMap = struct {
 	BadCredentials customError
-	Forbidden customError
+	Forbidden      customError
 }
 
 var CustomErrors = customErrorsMap{
 	Auth: authErrorsMap{
 		BadCredentials: customError{Status: http.StatusUnauthorized, Message: "Bad credentials"},
-		Forbidden: customError{Status: http.StatusForbidden, Message: "You're not allowed to perform this action"},
+		Forbidden:      customError{Status: http.StatusForbidden, Message: "You're not allowed to perform this action"},
 	},
 }

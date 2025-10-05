@@ -1,0 +1,99 @@
+package tests_e2e
+
+import (
+	"fmt"
+	"testing"
+
+	"gordon-raptor/src/internal/app"
+	"gordon-raptor/src/internal/config"
+	"gordon-raptor/src/internal/consts"
+	"gordon-raptor/src/internal/contracts"
+	tests_mocks "gordon-raptor/src/internal/tests/mocks"
+	tests_utils "gordon-raptor/src/internal/tests/utils"
+	"gordon-raptor/src/pkg/db"
+
+	"github.com/stretchr/testify/assert"
+
+	"encoding/json"
+	"net/http"
+	"net/http/httptest"
+)
+
+func TestGetRecipes(t *testing.T) {
+	var method = "GET"
+	var path = "/recipes"
+	server, _ := app.NewApp(config.TestConfig)
+	database, _ := db.NewMongoDatabase(config.TestConfig.MongoURL)
+
+	recipesBuilder := tests_utils.NewGenericEntityBuilder(database.Collection(consts.CollectionNames["recipes"]), tests_mocks.DefaultRecipeMock)
+
+	t.Run("returns empty list with status 200 when there are no recipes", func(t *testing.T) {
+		tests_utils.CleanTestDatabase(database)
+
+		// when
+		req, _ := http.NewRequest(method, path, nil)
+		req.Header.Set("Content-Type", "application/json")
+		response := httptest.NewRecorder()
+		server.ServeHTTP(response, req)
+
+		// then
+		assert.Equal(t, http.StatusOK, response.Code)
+
+		var responseBody contracts.GetRecipesResponseDto
+		err := json.Unmarshal(response.Body.Bytes(), &responseBody)
+		assert.NoError(t, err)
+
+		assert.Equal(t, 0, len(responseBody.Recipes))
+	})
+
+	t.Run("returns the recipes with status 200", func(t *testing.T) {
+		tests_utils.CleanTestDatabase(database)
+
+		// given
+		recipesBuilder.WithID(tests_mocks.MockRecipeId1).OverrideProps(map[string]any{"name": "spaghetti"}).Build()
+		recipesBuilder.WithID(tests_mocks.MockRecipeId2).OverrideProps(map[string]any{"name": "pizza"}).Build()
+
+		// when
+		req, _ := http.NewRequest(method, path, nil)
+		req.Header.Set("Content-Type", "application/json")
+		response := httptest.NewRecorder()
+		server.ServeHTTP(response, req)
+
+		// then
+		assert.Equal(t, http.StatusOK, response.Code)
+
+		var responseBody contracts.GetRecipesResponseDto
+		err := json.Unmarshal(response.Body.Bytes(), &responseBody)
+		assert.NoError(t, err)
+
+		assert.Equal(t, 2, len(responseBody.Recipes))
+		assert.Equal(t, "spaghetti", responseBody.Recipes[0].Name)
+		assert.Equal(t, "pizza", responseBody.Recipes[1].Name)
+	})
+
+	t.Run("properly handles page/limit parameters", func(t *testing.T) {
+		tests_utils.CleanTestDatabase(database)
+
+		// given
+		page := 2
+		limit := 1
+		recipesBuilder.WithID(tests_mocks.MockRecipeId1).OverrideProps(map[string]any{"name": "spaghetti"}).Build()
+		recipesBuilder.WithID(tests_mocks.MockRecipeId2).OverrideProps(map[string]any{"name": "pizza"}).Build()
+
+		// when
+		req, _ := http.NewRequest(method, fmt.Sprintf("%s?page=%d&limit=%d", path, page, limit), nil)
+		req.Header.Set("Content-Type", "application/json")
+		response := httptest.NewRecorder()
+		server.ServeHTTP(response, req)
+
+		// then
+		assert.Equal(t, http.StatusOK, response.Code)
+
+		var responseBody contracts.GetRecipesResponseDto
+		err := json.Unmarshal(response.Body.Bytes(), &responseBody)
+		assert.NoError(t, err)
+
+		assert.Equal(t, 1, len(responseBody.Recipes))
+		assert.Equal(t, "pizza", responseBody.Recipes[0].Name)
+	})
+}

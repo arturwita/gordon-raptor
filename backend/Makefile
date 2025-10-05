@@ -11,4 +11,4 @@ e2e_tests:
 	go test -v ./src/internal/tests/e2e...
 
 lint:
-	goimports -w .
+	goimports -w $(shell find . -name '*.go')

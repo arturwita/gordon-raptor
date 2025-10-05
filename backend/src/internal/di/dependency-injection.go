@@ -2,7 +2,7 @@ package di
 
 import (
 	"gordon-raptor/src/internal/config"
-	"gordon-raptor/src/internal/recipes"
+	"gordon-raptor/src/internal/domains/recipes"
 	"gordon-raptor/src/pkg/db"
 )
 
