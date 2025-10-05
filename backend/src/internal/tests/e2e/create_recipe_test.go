@@ -27,7 +27,7 @@ func TestCreateRecipe(t *testing.T) {
 		tests_utils.CleanTestDatabase(database)
 
 		// given
-		expected := contracts.CreateRecipeDto{
+		expected := contracts.CreateRecipeBodyDto{
 			Name: "spaghetti bolognese",
 			Ingredients: map[string]string{
 				"pasta": "100g",

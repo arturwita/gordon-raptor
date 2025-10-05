@@ -9,4 +9,3 @@ import (
 func CleanTestDatabase(database *mongo.Database) {
 	database.Drop(context.Background())
 }
-

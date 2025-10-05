@@ -12,13 +12,14 @@ import (
 func CreateRecipeHandler(recipeService RecipeService) gin.HandlerFunc {
 	return func(context *gin.Context) {
 		ctx := context.Request.Context()
-		var dto contracts.CreateRecipeDto
-		if err := context.BindJSON(&dto); err != nil {
+
+		var body contracts.CreateRecipeBodyDto
+		if err := context.BindJSON(&body); err != nil {
 			context.JSON(http.StatusBadRequest, &contracts.ErrorResponse{Message: err.Error()})
 			return
 		}
 
-		recipe, err := recipeService.CreateRecipe(dto, ctx)
+		recipe, err := recipeService.CreateRecipe(body, ctx)
 		if err != nil {
 			fmt.Println("Failed to create recipe", err)
 			context.JSON(http.StatusInternalServerError, &contracts.ErrorResponse{Message: err.Error()})
@@ -34,9 +35,9 @@ func CreateRecipeHandler(recipeService RecipeService) gin.HandlerFunc {
 func GetRecipesHandler(recipeService RecipeService) gin.HandlerFunc {
 	return func(context *gin.Context) {
 		ctx := context.Request.Context()
-		paginationDto := contracts.BindPagination(context)
+		query := contracts.BindPagination(context)
 
-		recipes, err := recipeService.GetRecipes(paginationDto, ctx)
+		recipes, err := recipeService.GetRecipes(query, ctx)
 		if err != nil {
 			fmt.Println("Failed to get recipes", err)
 			context.JSON(http.StatusInternalServerError, &contracts.ErrorResponse{Message: err.Error()})
@@ -49,18 +50,46 @@ func GetRecipesHandler(recipeService RecipeService) gin.HandlerFunc {
 	}
 }
 
-func DeleteRecipeHandler(recipeService RecipeService) gin.HandlerFunc {
+func UpdateRecipeHandler(recipeService RecipeService) gin.HandlerFunc {
 	return func(context *gin.Context) {
 		ctx := context.Request.Context()
-		var dto contracts.DeleteRecipeDto
-		if err := context.BindUri(&dto); err != nil {
+
+		var params contracts.RecipeIdParamDto
+		if err := context.BindUri(&params); err != nil {
 			context.JSON(http.StatusBadRequest, &contracts.ErrorResponse{Message: err.Error()})
 			return
 		}
 
-		err := recipeService.DeleteRecipe(dto.Id, ctx)
+		var body contracts.UpdateRecipeBodyDto
+		if err := context.BindJSON(&body); err != nil {
+			context.JSON(http.StatusBadRequest, &contracts.ErrorResponse{Message: err.Error()})
+			return
+		}
+
+		recipe, err := recipeService.UpdateRecipe(params.Id, body, ctx)
 		if err != nil {
-			fmt.Println("Failed to delete a recipe", err)
+			context.JSON(http.StatusNotFound, &contracts.ErrorResponse{Message: err.Error()})
+			return
+		}
+
+		context.JSON(http.StatusOK, &contracts.UpdateRecipeResponseDto{
+			Recipe: MapToRecipeDto(recipe),
+		})
+	}
+}
+
+func DeleteRecipeHandler(recipeService RecipeService) gin.HandlerFunc {
+	return func(context *gin.Context) {
+		ctx := context.Request.Context()
+
+		var params contracts.RecipeIdParamDto
+		if err := context.BindUri(&params); err != nil {
+			context.JSON(http.StatusBadRequest, &contracts.ErrorResponse{Message: err.Error()})
+			return
+		}
+
+		err := recipeService.DeleteRecipe(params.Id, ctx)
+		if err != nil {
 			context.JSON(http.StatusNotFound, &contracts.ErrorResponse{Message: err.Error()})
 			return
 		}

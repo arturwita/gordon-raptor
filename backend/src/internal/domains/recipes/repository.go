@@ -16,8 +16,9 @@ import (
 )
 
 type RecipeRepository interface {
-	CreateRecipe(dto contracts.CreateRecipeDto, ctx context.Context) (*RecipeModel, error)
+	CreateRecipe(dto contracts.CreateRecipeBodyDto, ctx context.Context) (*RecipeModel, error)
 	GetRecipes(paginationDto *contracts.PaginationDto, ctx context.Context) ([]*RecipeModel, error)
+	UpdateRecipe(id string, dto contracts.UpdateRecipeBodyDto, ctx context.Context) (*RecipeModel, error)
 	DeleteRecipe(id string, ctx context.Context) error
 }
 
@@ -29,7 +30,7 @@ func NewRecipeRepository(database *mongo.Database) (RecipeRepository, error) {
 	return &recipeRepository{database.Collection(consts.CollectionNames["recipes"])}, nil
 }
 
-func (repo *recipeRepository) CreateRecipe(dto contracts.CreateRecipeDto, ctx context.Context) (*RecipeModel, error) {
+func (repo *recipeRepository) CreateRecipe(dto contracts.CreateRecipeBodyDto, ctx context.Context) (*RecipeModel, error) {
 	recipe := RecipeModel{
 		Id:          primitive.NewObjectID(),
 		Name:        dto.Name,
@@ -67,6 +68,31 @@ func (repo *recipeRepository) GetRecipes(paginationDto *contracts.PaginationDto,
 	}
 
 	return recipes, nil
+}
+
+func (repo *recipeRepository) UpdateRecipe(id string, dto contracts.UpdateRecipeBodyDto, ctx context.Context) (*RecipeModel, error) {
+	var updatedRecipe RecipeModel
+	err := repo.collection.FindOneAndUpdate(
+		ctx,
+		bson.M{"_id": db.EnsureMongoId(id)},
+		bson.M{
+			"$set": bson.M{
+				"name":        dto.Name,
+				"ingredients": dto.Ingredients,
+				"updatedAt":   primitive.NewDateTimeFromTime(time.Now()),
+			},
+		},
+		options.FindOneAndUpdate().SetReturnDocument(options.After),
+	).Decode(&updatedRecipe)
+
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return nil, errors.New("recipe not found")
+		}
+		return nil, err
+	}
+
+	return &updatedRecipe, nil
 }
 
 func (repo *recipeRepository) DeleteRecipe(id string, ctx context.Context) error {

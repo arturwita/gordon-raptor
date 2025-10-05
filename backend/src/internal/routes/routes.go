@@ -12,6 +12,7 @@ func RegisterRoutes(router *gin.Engine, deps *di.DIContainer) {
 	{
 		recipesEndpoints.POST("", recipes.CreateRecipeHandler(deps.RecipeService))
 		recipesEndpoints.GET("", recipes.GetRecipesHandler(deps.RecipeService))
+		recipesEndpoints.PUT("/:id", recipes.UpdateRecipeHandler(deps.RecipeService))
 		recipesEndpoints.DELETE("/:id", recipes.DeleteRecipeHandler(deps.RecipeService))
 	}
 

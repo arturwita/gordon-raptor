@@ -8,7 +8,7 @@ type RecipeDto struct {
 	UpdatedAt   string            `json:"updatedAt"`
 }
 
-type CreateRecipeDto struct {
+type CreateRecipeBodyDto struct {
 	Name        string            `form:"name" json:"name" binding:"required"`
 	Ingredients map[string]string `form:"ingredients" json:"ingredients" binding:"required"`
 }
@@ -21,6 +21,15 @@ type GetRecipesResponseDto struct {
 	Recipes []*RecipeDto `json:"recipes"`
 }
 
-type DeleteRecipeDto struct {
-  Id string `uri:"id" binding:"required,len=24,hexadecimal"`
+type UpdateRecipeBodyDto struct {
+	Name        string            `form:"name" json:"name" binding:"required"`
+	Ingredients map[string]string `form:"ingredients" json:"ingredients" binding:"required"`
+}
+
+type UpdateRecipeResponseDto struct {
+	Recipe *RecipeDto `json:"recipe"`
+}
+
+type RecipeIdParamDto struct {
+	Id string `uri:"id" json:"id" binding:"required,len=24,hexadecimal"`
 }
