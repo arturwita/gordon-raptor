@@ -35,7 +35,7 @@ func GetRecipesHandler(recipeService RecipeService) gin.HandlerFunc {
 	return func(context *gin.Context) {
 		ctx := context.Request.Context()
 		paginationDto := contracts.BindPagination(context)
-		
+
 		recipes, err := recipeService.GetRecipes(paginationDto, ctx)
 		if err != nil {
 			fmt.Println("Failed to get recipes", err)

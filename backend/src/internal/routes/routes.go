@@ -10,8 +10,8 @@ import (
 func RegisterRoutes(router *gin.Engine, deps *di.DIContainer) {
 	recipesEndpoints := router.Group("/recipes")
 	{
-		recipesEndpoints.POST("/", recipes.CreateRecipeHandler(deps.RecipeService))
-		recipesEndpoints.GET("/", recipes.GetRecipesHandler(deps.RecipeService))
+		recipesEndpoints.POST("", recipes.CreateRecipeHandler(deps.RecipeService))
+		recipesEndpoints.GET("", recipes.GetRecipesHandler(deps.RecipeService))
 	}
 
 	// authEndpoints := router.Group("/auth")
