@@ -2,6 +2,7 @@ package tests_utils
 
 import (
 	"context"
+	"gordon-raptor/src/pkg/db"
 	"maps"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -27,7 +28,7 @@ func NewGenericEntityBuilder[T any](collection *mongo.Collection, defaultValues 
 }
 
 func (builder *GenericEntityBuilder[T]) WithID(id string) *GenericEntityBuilder[T] {
-	builder.entity["_id"] = EnsureMongoId(id)
+	builder.entity["_id"] = db.EnsureMongoId(id)
 	return builder
 }
 

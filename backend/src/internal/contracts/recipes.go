@@ -20,3 +20,7 @@ type CreateRecipeResponseDto struct {
 type GetRecipesResponseDto struct {
 	Recipes []*RecipeDto `json:"recipes"`
 }
+
+type DeleteRecipeDto struct {
+  Id string `uri:"id" binding:"required,len=24,hexadecimal"`
+}

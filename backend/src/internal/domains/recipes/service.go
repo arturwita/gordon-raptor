@@ -8,6 +8,7 @@ import (
 type RecipeService interface {
 	CreateRecipe(dto contracts.CreateRecipeDto, ctx context.Context) (*RecipeModel, error)
 	GetRecipes(paginationDto *contracts.PaginationDto, ctx context.Context) ([]*RecipeModel, error)
+	DeleteRecipe(id string, ctx context.Context) error
 }
 
 type recipeService struct {
@@ -34,4 +35,12 @@ func (service *recipeService) GetRecipes(paginationDto *contracts.PaginationDto,
 	}
 
 	return recipes, nil
+}
+
+func (service *recipeService) DeleteRecipe(id string, ctx context.Context) error {
+	if err := service.repository.DeleteRecipe(id, ctx); err != nil {
+		return err
+	}
+
+	return nil
 }

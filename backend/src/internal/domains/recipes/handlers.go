@@ -48,3 +48,23 @@ func GetRecipesHandler(recipeService RecipeService) gin.HandlerFunc {
 		})
 	}
 }
+
+func DeleteRecipeHandler(recipeService RecipeService) gin.HandlerFunc {
+	return func(context *gin.Context) {
+		ctx := context.Request.Context()
+		var dto contracts.DeleteRecipeDto
+		if err := context.BindUri(&dto); err != nil {
+			context.JSON(http.StatusBadRequest, &contracts.ErrorResponse{Message: err.Error()})
+			return
+		}
+
+		err := recipeService.DeleteRecipe(dto.Id, ctx)
+		if err != nil {
+			fmt.Println("Failed to delete a recipe", err)
+			context.JSON(http.StatusNotFound, &contracts.ErrorResponse{Message: err.Error()})
+			return
+		}
+
+		context.JSON(http.StatusNoContent, nil)
+	}
+}

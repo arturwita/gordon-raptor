@@ -2,10 +2,12 @@ package recipes
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"gordon-raptor/src/internal/consts"
 	"gordon-raptor/src/internal/contracts"
+	"gordon-raptor/src/pkg/db"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -16,6 +18,7 @@ import (
 type RecipeRepository interface {
 	CreateRecipe(dto contracts.CreateRecipeDto, ctx context.Context) (*RecipeModel, error)
 	GetRecipes(paginationDto *contracts.PaginationDto, ctx context.Context) ([]*RecipeModel, error)
+	DeleteRecipe(id string, ctx context.Context) error
 }
 
 type recipeRepository struct {
@@ -47,12 +50,12 @@ func (repo *recipeRepository) GetRecipes(paginationDto *contracts.PaginationDto,
 	skip := int64((paginationDto.Page - 1) * paginationDto.Limit)
 	limit := int64(paginationDto.Limit)
 	cursor, err := repo.collection.Find(ctx, bson.M{}, options.Find().SetSkip(skip).SetLimit(limit))
-	
+
 	if err != nil {
 		return nil, err
 	}
 
-	defer cursor.Close(ctx) 
+	defer cursor.Close(ctx)
 
 	var recipes []*RecipeModel
 	for cursor.Next(ctx) {
@@ -64,4 +67,17 @@ func (repo *recipeRepository) GetRecipes(paginationDto *contracts.PaginationDto,
 	}
 
 	return recipes, nil
+}
+
+func (repo *recipeRepository) DeleteRecipe(id string, ctx context.Context) error {
+	result, err := repo.collection.DeleteOne(ctx, bson.M{"_id": db.EnsureMongoId(id)})
+	if err != nil {
+		return err
+	}
+
+	if result.DeletedCount == 0 {
+		return errors.New("recipe not found")
+	}
+
+	return nil
 }

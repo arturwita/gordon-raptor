@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/x/mongo/driver/connstring"
@@ -27,4 +28,13 @@ func NewMongoDatabase(uri string) (*mongo.Database, error) {
 	}
 
 	return client.Database(parsedDbUrl.Database), nil
+}
+
+func EnsureMongoId(hex string) primitive.ObjectID {
+	id, err := primitive.ObjectIDFromHex(hex)
+	if err != nil {
+		panic(err)
+	}
+
+	return id
 }

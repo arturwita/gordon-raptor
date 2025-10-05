@@ -2,7 +2,7 @@ package tests_mocks
 
 import (
 	"gordon-raptor/src/internal/domains/recipes"
-	tests_utils "gordon-raptor/src/internal/tests/utils"
+	"gordon-raptor/src/pkg/db"
 )
 
 var MockRecipeId1 = "68dc4669766f5f4c66451161"
@@ -13,7 +13,7 @@ var MockRecipeId5 = "68dc4669766f5f4c66451165"
 var MockRecipeId6 = "68dc4669766f5f4c66451166"
 
 var DefaultRecipeMock = recipes.RecipeModel{
-	Id:        tests_utils.EnsureMongoId(MockRecipeId1),
+	Id:        db.EnsureMongoId(MockRecipeId1),
 	CreatedAt: MockTimestamp,
 	UpdatedAt: MockTimestamp,
 	Name:      "spaghetti bolognese",
