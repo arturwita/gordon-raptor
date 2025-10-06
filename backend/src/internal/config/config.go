@@ -12,6 +12,7 @@ type Config struct {
 	Port         int    `validate:"required"`
 	MongoURL     string `validate:"required"`
 	TrustedProxy string `validate:"required"`
+	FrontendURL  string `validate:"required"`
 }
 
 func LoadConfig() (*Config, error) {
@@ -23,6 +24,7 @@ func LoadConfig() (*Config, error) {
 		Port:         GetIntEnv("PORT", 8000),
 		MongoURL:     GetStringEnv("MONGO_URL", ""),
 		TrustedProxy: GetStringEnv("TRUSTED_PROXY", "127.0.0.1"),
+		FrontendURL:  GetStringEnv("FRONTEND_URL", "http://localhost:5173"),
 	}
 
 	if err := validator.New().Struct(config); err != nil {
@@ -39,4 +41,5 @@ var TestConfig = &Config{
 	Port:         8000,
 	MongoURL:     "mongodb://localhost:27017/gordon_test",
 	TrustedProxy: "127.0.0.1",
+	FrontendURL:  "http://localhost:5173",
 }

@@ -38,14 +38,14 @@ func TestUpdateRecipe(t *testing.T) {
 			"name": "spaghetti bolognese",
 			"ingredients": map[string]string{
 				"pasta": "100g",
-				"meat": "100g"},
-			}).Build()
+				"meat":  "100g"},
+		}).Build()
 
 		expected := contracts.UpdateRecipeBodyDto{
 			Name: "pizza",
 			Ingredients: map[string]string{
 				"mozarella": "200g",
-				"tomatoes": "100g",
+				"tomatoes":  "100g",
 			},
 		}
 		reqBody, _ := json.Marshal(expected)
@@ -81,7 +81,7 @@ func TestUpdateRecipe(t *testing.T) {
 			Name: "pizza",
 			Ingredients: map[string]string{
 				"mozarella": "200g",
-				"tomatoes": "100g",
+				"tomatoes":  "100g",
 			},
 		}
 		reqBody, _ := json.Marshal(expected)
