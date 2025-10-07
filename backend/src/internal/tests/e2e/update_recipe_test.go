@@ -23,7 +23,7 @@ import (
 
 func TestUpdateRecipe(t *testing.T) {
 	var method = "PUT"
-	var path = "/recipes"
+	var path = fmt.Sprintf("/recipes/%s", tests_mocks.MockRecipeId1)
 	server, _ := app.NewApp(config.TestConfig)
 	database, _ := db.NewMongoDatabase(config.TestConfig.MongoURL)
 	collection := database.Collection(consts.CollectionNames["recipes"])
@@ -38,21 +38,22 @@ func TestUpdateRecipe(t *testing.T) {
 			"name": "spaghetti bolognese",
 			"ingredients": map[string]string{
 				"pasta": "100g",
-				"meat": "100g"},
-			}).Build()
+				"meat":  "100g"},
+		}).Build()
 
 		expected := contracts.UpdateRecipeBodyDto{
 			Name: "pizza",
 			Ingredients: map[string]string{
 				"mozarella": "200g",
-				"tomatoes": "100g",
+				"tomatoes":  "100g",
 			},
 		}
 		reqBody, _ := json.Marshal(expected)
 
 		// when
-		req, _ := http.NewRequest(method, fmt.Sprintf("%s/%s", path, tests_mocks.MockRecipeId1), bytes.NewBuffer(reqBody))
+		req, _ := http.NewRequest(method, path, bytes.NewBuffer(reqBody))
 		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("x-api-key", config.TestConfig.AdminApiKey)
 		response := httptest.NewRecorder()
 		server.ServeHTTP(response, req)
 
@@ -81,14 +82,15 @@ func TestUpdateRecipe(t *testing.T) {
 			Name: "pizza",
 			Ingredients: map[string]string{
 				"mozarella": "200g",
-				"tomatoes": "100g",
+				"tomatoes":  "100g",
 			},
 		}
 		reqBody, _ := json.Marshal(expected)
 
 		// when
-		req, _ := http.NewRequest(method, fmt.Sprintf("%s/%s", path, tests_mocks.MockRecipeId1), bytes.NewBuffer(reqBody))
+		req, _ := http.NewRequest(method, path, bytes.NewBuffer(reqBody))
 		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("x-api-key", config.TestConfig.AdminApiKey)
 		response := httptest.NewRecorder()
 		server.ServeHTTP(response, req)
 
@@ -100,5 +102,45 @@ func TestUpdateRecipe(t *testing.T) {
 		assert.NoError(t, err)
 
 		assert.Equal(t, "recipe not found", responseBody.Message)
+	})
+
+		t.Run("returns 403 if x-api-key header is missing", func(t *testing.T) {
+		tests_utils.CleanTestDatabase(database)
+
+		// when
+		req, _ := http.NewRequest(method, path, nil)
+		req.Header.Set("Content-Type", "application/json")
+		response := httptest.NewRecorder()
+		server.ServeHTTP(response, req)
+
+		// then
+		assert.Equal(t, http.StatusForbidden, response.Code)
+
+		var responseBody contracts.ErrorResponse
+		err := json.Unmarshal(response.Body.Bytes(), &responseBody)
+		assert.NoError(t, err)
+
+		assert.Equal(t, "You're not allowed to perform this action", responseBody.Message)
+	})
+
+
+	t.Run("returns 403 if x-api-key header has invalid value", func(t *testing.T) {
+		tests_utils.CleanTestDatabase(database)
+
+		// when
+		req, _ := http.NewRequest(method, path, nil)
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("x-api-key", "invalid-api-key")
+		response := httptest.NewRecorder()
+		server.ServeHTTP(response, req)
+
+		// then
+		assert.Equal(t, http.StatusForbidden, response.Code)
+
+		var responseBody contracts.ErrorResponse
+		err := json.Unmarshal(response.Body.Bytes(), &responseBody)
+		assert.NoError(t, err)
+
+		assert.Equal(t, "You're not allowed to perform this action", responseBody.Message)
 	})
 }
