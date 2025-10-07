@@ -96,4 +96,29 @@ func TestGetRecipes(t *testing.T) {
 		assert.Equal(t, 1, len(responseBody.Recipes))
 		assert.Equal(t, "pizza", responseBody.Recipes[0].Name)
 	})
+
+	t.Run("returns only recipes containing the given search string", func(t *testing.T) {
+		tests_utils.CleanTestDatabase(database)
+
+		// given
+		name := "piz"
+		recipesBuilder.WithID(tests_mocks.MockRecipeId1).OverrideProps(map[string]any{"name": "spaghetti"}).Build()
+		recipesBuilder.WithID(tests_mocks.MockRecipeId2).OverrideProps(map[string]any{"name": "pizza"}).Build()
+
+		// when
+		req, _ := http.NewRequest(method, fmt.Sprintf("%s?name=%s", path, name), nil)
+		req.Header.Set("Content-Type", "application/json")
+		response := httptest.NewRecorder()
+		server.ServeHTTP(response, req)
+
+		// then
+		assert.Equal(t, http.StatusOK, response.Code)
+
+		var responseBody contracts.GetRecipesResponseDto
+		err := json.Unmarshal(response.Body.Bytes(), &responseBody)
+		assert.NoError(t, err)
+
+		assert.Equal(t, 1, len(responseBody.Recipes))
+		assert.Equal(t, "pizza", responseBody.Recipes[0].Name)
+	})
 }

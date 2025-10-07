@@ -17,7 +17,7 @@ import (
 
 type RecipeRepository interface {
 	CreateRecipe(dto *contracts.CreateRecipeBodyDto, ctx context.Context) (*RecipeModel, error)
-	GetRecipes(paginationDto *contracts.GetRecipesQueryDto, ctx context.Context) ([]*RecipeModel, error)
+	GetRecipes(query *contracts.GetRecipesQueryDto, ctx context.Context) ([]*RecipeModel, error)
 	UpdateRecipe(id string, dto *contracts.UpdateRecipeBodyDto, ctx context.Context) (*RecipeModel, error)
 	DeleteRecipe(id string, ctx context.Context) error
 }
@@ -47,10 +47,16 @@ func (repo *recipeRepository) CreateRecipe(dto *contracts.CreateRecipeBodyDto, c
 	return &recipe, nil
 }
 
-func (repo *recipeRepository) GetRecipes(paginationDto *contracts.GetRecipesQueryDto, ctx context.Context) ([]*RecipeModel, error) {
-	skip := int64((paginationDto.Page - 1) * paginationDto.Limit)
-	limit := int64(paginationDto.Limit)
-	cursor, err := repo.collection.Find(ctx, bson.M{}, options.Find().SetSkip(skip).SetLimit(limit))
+func (repo *recipeRepository) GetRecipes(query *contracts.GetRecipesQueryDto, ctx context.Context) ([]*RecipeModel, error) {
+	skip := int64((query.Page - 1) * query.Limit)
+	limit := int64(query.Limit)
+	filter := bson.M{
+		"name": bson.M{
+			"$regex":   query.Name,
+			"$options": "i",
+		},
+	}
+	cursor, err := repo.collection.Find(ctx, filter, options.Find().SetSkip(skip).SetLimit(limit))
 
 	if err != nil {
 		return nil, err

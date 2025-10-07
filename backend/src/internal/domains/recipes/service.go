@@ -7,7 +7,7 @@ import (
 
 type RecipeService interface {
 	CreateRecipe(dto *contracts.CreateRecipeBodyDto, ctx context.Context) (*RecipeModel, error)
-	GetRecipes(paginationDto *contracts.GetRecipesQueryDto, ctx context.Context) ([]*RecipeModel, error)
+	GetRecipes(query *contracts.GetRecipesQueryDto, ctx context.Context) ([]*RecipeModel, error)
 	UpdateRecipe(id string, dto *contracts.UpdateRecipeBodyDto, ctx context.Context) (*RecipeModel, error)
 	DeleteRecipe(id string, ctx context.Context) error
 }
@@ -24,8 +24,8 @@ func (service *recipeService) CreateRecipe(dto *contracts.CreateRecipeBodyDto, c
 	return service.repository.CreateRecipe(dto, ctx)
 }
 
-func (service *recipeService) GetRecipes(paginationDto *contracts.GetRecipesQueryDto, ctx context.Context) ([]*RecipeModel, error) {
-	return service.repository.GetRecipes(paginationDto, ctx)
+func (service *recipeService) GetRecipes(query *contracts.GetRecipesQueryDto, ctx context.Context) ([]*RecipeModel, error) {
+	return service.repository.GetRecipes(query, ctx)
 }
 
 func (service *recipeService) UpdateRecipe(id string, dto *contracts.UpdateRecipeBodyDto, ctx context.Context) (*RecipeModel, error) {
