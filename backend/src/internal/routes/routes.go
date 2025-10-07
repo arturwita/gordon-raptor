@@ -19,6 +19,7 @@ func RegisterRoutes(router *gin.Engine, deps *di.DIContainer) {
 		recipesEndpoints.DELETE("/:id", apiKeyMiddleware, recipes.DeleteRecipeHandler(deps.RecipeService))
 	}
 
+	// test
 	// authEndpoints := router.Group("/auth")
 	// {
 	// 	authEndpoints.POST("/login", auth.CreateLoginHandler(deps.AuthService))
