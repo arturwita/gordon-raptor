@@ -10,7 +10,7 @@ import (
 
 func RegisterRoutes(router *gin.Engine, deps *di.DIContainer) {
 	apiKeyMiddleware := middlewares.ApiKeyAuthMiddleware(deps.Config.AdminApiKey)
-	
+
 	recipesEndpoints := router.Group("/recipes")
 	{
 		recipesEndpoints.GET("", recipes.GetRecipesHandler(deps.RecipeService))
@@ -19,7 +19,6 @@ func RegisterRoutes(router *gin.Engine, deps *di.DIContainer) {
 		recipesEndpoints.DELETE("/:id", apiKeyMiddleware, recipes.DeleteRecipeHandler(deps.RecipeService))
 	}
 
-	// test
 	// authEndpoints := router.Group("/auth")
 	// {
 	// 	authEndpoints.POST("/login", auth.CreateLoginHandler(deps.AuthService))

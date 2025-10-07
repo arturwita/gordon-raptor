@@ -66,7 +66,7 @@ func TestDeleteRecipe(t *testing.T) {
 		assert.Equal(t, 0, len(response.Body.Bytes()))
 	})
 
-		t.Run("returns 403 if x-api-key header is missing", func(t *testing.T) {
+	t.Run("returns 403 if x-api-key header is missing", func(t *testing.T) {
 		tests_utils.CleanTestDatabase(database)
 
 		// when
@@ -84,7 +84,6 @@ func TestDeleteRecipe(t *testing.T) {
 
 		assert.Equal(t, "You're not allowed to perform this action", responseBody.Message)
 	})
-
 
 	t.Run("returns 403 if x-api-key header has invalid value", func(t *testing.T) {
 		tests_utils.CleanTestDatabase(database)
