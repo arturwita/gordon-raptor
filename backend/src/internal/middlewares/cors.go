@@ -1,4 +1,4 @@
-package middleware
+package middlewares
 
 import (
 	config "gordon-raptor/src/internal/config"

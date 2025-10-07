@@ -21,7 +21,7 @@ import (
 
 func TestDeleteRecipe(t *testing.T) {
 	var method = "DELETE"
-	var path = "/recipes"
+	var path = fmt.Sprintf("/recipes/%s", tests_mocks.MockRecipeId1)
 	server, _ := app.NewApp(config.TestConfig)
 	database, _ := db.NewMongoDatabase(config.TestConfig.MongoURL)
 	collection := database.Collection(consts.CollectionNames["recipes"])
@@ -32,8 +32,9 @@ func TestDeleteRecipe(t *testing.T) {
 		tests_utils.CleanTestDatabase(database)
 
 		// when
-		req, _ := http.NewRequest(method, fmt.Sprintf("%s/%s", path, tests_mocks.MockRecipeId1), nil)
+		req, _ := http.NewRequest(method, path, nil)
 		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("x-api-key", config.TestConfig.AdminApiKey)
 		response := httptest.NewRecorder()
 		server.ServeHTTP(response, req)
 
@@ -54,13 +55,54 @@ func TestDeleteRecipe(t *testing.T) {
 		recipesBuilder.WithID(tests_mocks.MockRecipeId1).Build()
 
 		// when
-		req, _ := http.NewRequest(method, fmt.Sprintf("%s/%s", path, tests_mocks.MockRecipeId1), nil)
+		req, _ := http.NewRequest(method, path, nil)
 		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("x-api-key", config.TestConfig.AdminApiKey)
 		response := httptest.NewRecorder()
 		server.ServeHTTP(response, req)
 
 		// then
 		assert.Equal(t, http.StatusNoContent, response.Code)
 		assert.Equal(t, 0, len(response.Body.Bytes()))
+	})
+
+		t.Run("returns 403 if x-api-key header is missing", func(t *testing.T) {
+		tests_utils.CleanTestDatabase(database)
+
+		// when
+		req, _ := http.NewRequest(method, path, nil)
+		req.Header.Set("Content-Type", "application/json")
+		response := httptest.NewRecorder()
+		server.ServeHTTP(response, req)
+
+		// then
+		assert.Equal(t, http.StatusForbidden, response.Code)
+
+		var responseBody contracts.ErrorResponse
+		err := json.Unmarshal(response.Body.Bytes(), &responseBody)
+		assert.NoError(t, err)
+
+		assert.Equal(t, "You're not allowed to perform this action", responseBody.Message)
+	})
+
+
+	t.Run("returns 403 if x-api-key header has invalid value", func(t *testing.T) {
+		tests_utils.CleanTestDatabase(database)
+
+		// when
+		req, _ := http.NewRequest(method, path, nil)
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("x-api-key", "invalid-api-key")
+		response := httptest.NewRecorder()
+		server.ServeHTTP(response, req)
+
+		// then
+		assert.Equal(t, http.StatusForbidden, response.Code)
+
+		var responseBody contracts.ErrorResponse
+		err := json.Unmarshal(response.Body.Bytes(), &responseBody)
+		assert.NoError(t, err)
+
+		assert.Equal(t, "You're not allowed to perform this action", responseBody.Message)
 	})
 }

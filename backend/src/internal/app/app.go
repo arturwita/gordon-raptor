@@ -7,7 +7,7 @@ import (
 
 	"gordon-raptor/src/internal/config"
 	"gordon-raptor/src/internal/di"
-	"gordon-raptor/src/internal/middleware"
+	"gordon-raptor/src/internal/middlewares"
 	"gordon-raptor/src/internal/routes"
 )
 
@@ -19,7 +19,7 @@ func NewApp(cfg *config.Config) (*gin.Engine, error) {
 	}
 
 	server := gin.Default()
-	server.Use(middleware.CORSMiddleware(cfg))
+	server.Use(middlewares.CORSMiddleware(cfg))
 	server.SetTrustedProxies([]string{cfg.TrustedProxy})
 
 	routes.RegisterRoutes(server, deps)
