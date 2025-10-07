@@ -16,9 +16,9 @@ import (
 )
 
 type RecipeRepository interface {
-	CreateRecipe(dto contracts.CreateRecipeBodyDto, ctx context.Context) (*RecipeModel, error)
-	GetRecipes(paginationDto *contracts.PaginationDto, ctx context.Context) ([]*RecipeModel, error)
-	UpdateRecipe(id string, dto contracts.UpdateRecipeBodyDto, ctx context.Context) (*RecipeModel, error)
+	CreateRecipe(dto *contracts.CreateRecipeBodyDto, ctx context.Context) (*RecipeModel, error)
+	GetRecipes(paginationDto *contracts.GetRecipesQueryDto, ctx context.Context) ([]*RecipeModel, error)
+	UpdateRecipe(id string, dto *contracts.UpdateRecipeBodyDto, ctx context.Context) (*RecipeModel, error)
 	DeleteRecipe(id string, ctx context.Context) error
 }
 
@@ -30,7 +30,7 @@ func NewRecipeRepository(database *mongo.Database) (RecipeRepository, error) {
 	return &recipeRepository{database.Collection(consts.CollectionNames["recipes"])}, nil
 }
 
-func (repo *recipeRepository) CreateRecipe(dto contracts.CreateRecipeBodyDto, ctx context.Context) (*RecipeModel, error) {
+func (repo *recipeRepository) CreateRecipe(dto *contracts.CreateRecipeBodyDto, ctx context.Context) (*RecipeModel, error) {
 	recipe := RecipeModel{
 		Id:          primitive.NewObjectID(),
 		Name:        dto.Name,
@@ -47,7 +47,7 @@ func (repo *recipeRepository) CreateRecipe(dto contracts.CreateRecipeBodyDto, ct
 	return &recipe, nil
 }
 
-func (repo *recipeRepository) GetRecipes(paginationDto *contracts.PaginationDto, ctx context.Context) ([]*RecipeModel, error) {
+func (repo *recipeRepository) GetRecipes(paginationDto *contracts.GetRecipesQueryDto, ctx context.Context) ([]*RecipeModel, error) {
 	skip := int64((paginationDto.Page - 1) * paginationDto.Limit)
 	limit := int64(paginationDto.Limit)
 	cursor, err := repo.collection.Find(ctx, bson.M{}, options.Find().SetSkip(skip).SetLimit(limit))
@@ -70,7 +70,7 @@ func (repo *recipeRepository) GetRecipes(paginationDto *contracts.PaginationDto,
 	return recipes, nil
 }
 
-func (repo *recipeRepository) UpdateRecipe(id string, dto contracts.UpdateRecipeBodyDto, ctx context.Context) (*RecipeModel, error) {
+func (repo *recipeRepository) UpdateRecipe(id string, dto *contracts.UpdateRecipeBodyDto, ctx context.Context) (*RecipeModel, error) {
 	var updatedRecipe RecipeModel
 	err := repo.collection.FindOneAndUpdate(
 		ctx,

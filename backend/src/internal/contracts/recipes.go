@@ -17,6 +17,12 @@ type CreateRecipeResponseDto struct {
 	Recipe *RecipeDto `json:"recipe"`
 }
 
+type GetRecipesQueryDto struct {
+	Page  int    `form:"page" json:"page" binding:"gte=1"`
+	Limit int    `form:"limit" json:"limit" binding:"gte=1,lte=100"`
+	Name  string `form:"name" json:"name" binding:"omitempty"`
+}
+
 type GetRecipesResponseDto struct {
 	Recipes []*RecipeDto `json:"recipes"`
 }

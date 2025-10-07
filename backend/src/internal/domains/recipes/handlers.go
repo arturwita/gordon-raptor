@@ -9,15 +9,10 @@ import (
 	"gordon-raptor/src/internal/contracts"
 )
 
-func CreateRecipeHandler(recipeService RecipeService) gin.HandlerFunc {
+func NewCreateRecipeHandler(recipeService RecipeService) gin.HandlerFunc {
 	return func(context *gin.Context) {
 		ctx := context.Request.Context()
-
-		var body contracts.CreateRecipeBodyDto
-		if err := context.BindJSON(&body); err != nil {
-			context.JSON(http.StatusBadRequest, &contracts.ErrorResponse{Message: err.Error()})
-			return
-		}
+		body := ParseCreateRecipeBody(context)
 
 		recipe, err := recipeService.CreateRecipe(body, ctx)
 		if err != nil {
@@ -32,10 +27,10 @@ func CreateRecipeHandler(recipeService RecipeService) gin.HandlerFunc {
 	}
 }
 
-func GetRecipesHandler(recipeService RecipeService) gin.HandlerFunc {
+func NewGetRecipesHandler(recipeService RecipeService) gin.HandlerFunc {
 	return func(context *gin.Context) {
 		ctx := context.Request.Context()
-		query := contracts.BindPagination(context)
+		query := ParseGetRecipesQuery(context)
 
 		recipes, err := recipeService.GetRecipes(query, ctx)
 		if err != nil {
@@ -50,23 +45,13 @@ func GetRecipesHandler(recipeService RecipeService) gin.HandlerFunc {
 	}
 }
 
-func UpdateRecipeHandler(recipeService RecipeService) gin.HandlerFunc {
+func NewUpdateRecipeHandler(recipeService RecipeService) gin.HandlerFunc {
 	return func(context *gin.Context) {
 		ctx := context.Request.Context()
+		recipeId := ParseRecipeIdParam(context)
+		body := ParseUpdateRecipeBody(context)
 
-		var params contracts.RecipeIdParamDto
-		if err := context.BindUri(&params); err != nil {
-			context.JSON(http.StatusBadRequest, &contracts.ErrorResponse{Message: err.Error()})
-			return
-		}
-
-		var body contracts.UpdateRecipeBodyDto
-		if err := context.BindJSON(&body); err != nil {
-			context.JSON(http.StatusBadRequest, &contracts.ErrorResponse{Message: err.Error()})
-			return
-		}
-
-		recipe, err := recipeService.UpdateRecipe(params.Id, body, ctx)
+		recipe, err := recipeService.UpdateRecipe(recipeId, body, ctx)
 		if err != nil {
 			context.JSON(http.StatusNotFound, &contracts.ErrorResponse{Message: err.Error()})
 			return
@@ -78,17 +63,12 @@ func UpdateRecipeHandler(recipeService RecipeService) gin.HandlerFunc {
 	}
 }
 
-func DeleteRecipeHandler(recipeService RecipeService) gin.HandlerFunc {
+func NewDeleteRecipeHandler(recipeService RecipeService) gin.HandlerFunc {
 	return func(context *gin.Context) {
 		ctx := context.Request.Context()
+		recipeId := ParseRecipeIdParam(context)
 
-		var params contracts.RecipeIdParamDto
-		if err := context.BindUri(&params); err != nil {
-			context.JSON(http.StatusBadRequest, &contracts.ErrorResponse{Message: err.Error()})
-			return
-		}
-
-		err := recipeService.DeleteRecipe(params.Id, ctx)
+		err := recipeService.DeleteRecipe(recipeId, ctx)
 		if err != nil {
 			context.JSON(http.StatusNotFound, &contracts.ErrorResponse{Message: err.Error()})
 			return

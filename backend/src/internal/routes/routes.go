@@ -2,6 +2,7 @@ package routes
 
 import (
 	"gordon-raptor/src/internal/di"
+	"gordon-raptor/src/internal/domains/auth/google"
 	"gordon-raptor/src/internal/domains/recipes"
 	"gordon-raptor/src/internal/middlewares"
 
@@ -13,14 +14,15 @@ func RegisterRoutes(router *gin.Engine, deps *di.DIContainer) {
 
 	recipesEndpoints := router.Group("/recipes")
 	{
-		recipesEndpoints.GET("", recipes.GetRecipesHandler(deps.RecipeService))
-		recipesEndpoints.POST("", apiKeyMiddleware, recipes.CreateRecipeHandler(deps.RecipeService))
-		recipesEndpoints.PUT("/:id", apiKeyMiddleware, recipes.UpdateRecipeHandler(deps.RecipeService))
-		recipesEndpoints.DELETE("/:id", apiKeyMiddleware, recipes.DeleteRecipeHandler(deps.RecipeService))
+		recipesEndpoints.GET("", recipes.NewGetRecipesHandler(deps.RecipeService))
+		recipesEndpoints.POST("", apiKeyMiddleware, recipes.NewCreateRecipeHandler(deps.RecipeService))
+		recipesEndpoints.PUT("/:id", apiKeyMiddleware, recipes.NewUpdateRecipeHandler(deps.RecipeService))
+		recipesEndpoints.DELETE("/:id", apiKeyMiddleware, recipes.NewDeleteRecipeHandler(deps.RecipeService))
 	}
 
-	// authEndpoints := router.Group("/auth")
-	// {
-	// 	authEndpoints.POST("/login", auth.CreateLoginHandler(deps.AuthService))
-	// }
+	authEndpoints := router.Group("/auth")
+	{
+		authEndpoints.GET("/google/login", google.NewGoogleLoginHandler())
+		authEndpoints.GET("/google/callback", google.NewGoogleCallbackHandler())
+	}
 }
