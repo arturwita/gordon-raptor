@@ -4,6 +4,7 @@ type RecipeDto struct {
 	Id          string            `json:"id"`
 	Name        string            `json:"name"`
 	Ingredients map[string]string `json:"ingredients"`
+	Picture     *string           `json:"picture,omitempty"`
 	CreatedAt   string            `json:"createdAt"`
 	UpdatedAt   string            `json:"updatedAt"`
 }
@@ -11,6 +12,7 @@ type RecipeDto struct {
 type CreateRecipeBodyDto struct {
 	Name        string            `form:"name" json:"name" binding:"required"`
 	Ingredients map[string]string `form:"ingredients" json:"ingredients" binding:"required"`
+	Picture     *string           `form:"picture" json:"picture" binding:"omitempty,url"`
 }
 
 type CreateRecipeResponseDto struct {

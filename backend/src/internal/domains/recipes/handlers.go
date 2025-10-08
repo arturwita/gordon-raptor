@@ -1,7 +1,6 @@
 package recipes
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -16,7 +15,6 @@ func NewCreateRecipeHandler(recipeService RecipeService) gin.HandlerFunc {
 
 		recipe, err := recipeService.CreateRecipe(body, ctx)
 		if err != nil {
-			fmt.Println("Failed to create recipe", err)
 			context.JSON(http.StatusInternalServerError, &contracts.ErrorResponse{Message: err.Error()})
 			return
 		}
@@ -34,7 +32,6 @@ func NewGetRecipesHandler(recipeService RecipeService) gin.HandlerFunc {
 
 		recipes, err := recipeService.GetRecipes(query, ctx)
 		if err != nil {
-			fmt.Println("Failed to get recipes", err)
 			context.JSON(http.StatusInternalServerError, &contracts.ErrorResponse{Message: err.Error()})
 			return
 		}

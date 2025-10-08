@@ -11,6 +11,7 @@ func MapToRecipeDto(recipe *RecipeModel) *contracts.RecipeDto {
 		Id:          recipe.Id.Hex(),
 		Name:        recipe.Name,
 		Ingredients: recipe.Ingredients,
+		Picture:     recipe.Picture,
 		CreatedAt:   recipe.CreatedAt.Time().Format(time.RFC3339),
 		UpdatedAt:   recipe.UpdatedAt.Time().Format(time.RFC3339),
 	}
