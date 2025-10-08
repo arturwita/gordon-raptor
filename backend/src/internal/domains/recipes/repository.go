@@ -7,6 +7,7 @@ import (
 
 	"gordon-raptor/src/internal/consts"
 	"gordon-raptor/src/internal/contracts"
+	"gordon-raptor/src/internal/custom_errors"
 	"gordon-raptor/src/pkg/db"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -97,7 +98,7 @@ func (repo *recipeRepository) UpdateRecipe(id string, dto *contracts.UpdateRecip
 
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
-			return nil, errors.New("recipe not found")
+			return nil, custom_errors.DomainErrors.Recipe.NotFound
 		}
 		return nil, err
 	}
@@ -114,7 +115,7 @@ func (repo *recipeRepository) DeleteRecipe(id string, ctx context.Context) error
 	}
 
 	if result.DeletedCount == 0 {
-		return errors.New("recipe not found")
+		return custom_errors.DomainErrors.Recipe.NotFound
 	}
 
 	return nil

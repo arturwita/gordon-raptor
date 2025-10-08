@@ -2,11 +2,13 @@ package google
 
 import (
 	"fmt"
-	config "gordon-raptor/src/internal/config"
+	"gordon-raptor/src/internal/config"
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 )
+
+// todo: consider moving to AppConfig, to validate env vars
 
 var GoogleOauthConfig = &oauth2.Config{
 	ClientID:     config.GetStringEnv("GOOGLE_OAUTH_CLIENT_ID", ""),

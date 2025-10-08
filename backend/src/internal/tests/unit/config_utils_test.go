@@ -2,7 +2,7 @@ package tests_unit
 
 import (
 	"fmt"
-	config "gordon-raptor/src/internal/config"
+	"gordon-raptor/src/internal/config"
 	"os"
 	"testing"
 

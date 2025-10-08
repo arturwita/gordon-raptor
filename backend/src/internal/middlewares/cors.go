@@ -1,7 +1,7 @@
 package middlewares
 
 import (
-	config "gordon-raptor/src/internal/config"
+	"gordon-raptor/src/internal/config"
 	"time"
 
 	"github.com/gin-contrib/cors"
