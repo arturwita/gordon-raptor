@@ -60,8 +60,9 @@ func (repo *recipeRepository) GetRecipes(query *contracts.GetRecipesQueryDto, ct
 			"$options": "i",
 		},
 	}
-	cursor, err := repo.collection.Find(ctx, filter, options.Find().SetSkip(skip).SetLimit(limit))
+	opts := options.Find().SetSkip(skip).SetLimit(limit)
 
+	cursor, err := repo.collection.Find(ctx, filter, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -81,19 +82,18 @@ func (repo *recipeRepository) GetRecipes(query *contracts.GetRecipesQueryDto, ct
 }
 
 func (repo *recipeRepository) UpdateRecipe(id string, dto *contracts.UpdateRecipeBodyDto, ctx context.Context) (*RecipeModel, error) {
-	var updatedRecipe RecipeModel
-	err := repo.collection.FindOneAndUpdate(
-		ctx,
-		bson.M{"_id": db.EnsureMongoId(id)},
-		bson.M{
-			"$set": bson.M{
-				"name":        dto.Name,
-				"ingredients": dto.Ingredients,
-				"updatedAt":   primitive.NewDateTimeFromTime(time.Now()),
-			},
+	filter := bson.M{"_id": db.EnsureMongoId(id)}
+	update := bson.M{
+		"$set": bson.M{
+			"name":        dto.Name,
+			"ingredients": dto.Ingredients,
+			"updatedAt":   primitive.NewDateTimeFromTime(time.Now()),
 		},
-		options.FindOneAndUpdate().SetReturnDocument(options.After),
-	).Decode(&updatedRecipe)
+	}
+	opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
+
+	var updatedRecipe RecipeModel
+	err := repo.collection.FindOneAndUpdate(ctx, filter, update, opts).Decode(&updatedRecipe)
 
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
@@ -106,7 +106,9 @@ func (repo *recipeRepository) UpdateRecipe(id string, dto *contracts.UpdateRecip
 }
 
 func (repo *recipeRepository) DeleteRecipe(id string, ctx context.Context) error {
-	result, err := repo.collection.DeleteOne(ctx, bson.M{"_id": db.EnsureMongoId(id)})
+	filter := bson.M{"_id": db.EnsureMongoId(id)}
+
+	result, err := repo.collection.DeleteOne(ctx, filter)
 	if err != nil {
 		return err
 	}
