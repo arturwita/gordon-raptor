@@ -34,13 +34,18 @@ func NewGoogleCallbackHandler(
 			context.JSON(http.StatusBadRequest, customError)
 		}
 
-		createUserDto := auth.MapGoogleUserToCreateUserDto(googleUserData)
-		userModel, err := userService.CreateUser(createUserDto, ctx)
-		if err != nil {
-			context.JSON(http.StatusBadRequest, &contracts.ErrorResponse{Message: "failed to create a user"})
+		user, _ := userService.GetUserByEmail(googleUserData.Email, ctx)
+		if user == nil {
+			createUserDto := auth.MapGoogleUserToCreateUserDto(googleUserData)
+			var err error
+			user, err = userService.CreateUser(createUserDto, ctx)
+			if err != nil {
+				context.JSON(http.StatusBadRequest, &contracts.ErrorResponse{Message: "failed to create a user"})
+				return
+			}
 		}
 
-		token, err := authService.GenerateJWT(userModel)
+		token, err := authService.GenerateJWT(user)
 		if err != nil || token == "" {
 			context.JSON(http.StatusBadRequest, &contracts.ErrorResponse{Message: "failed to login"})
 		}

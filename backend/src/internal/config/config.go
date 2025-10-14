@@ -16,7 +16,7 @@ type AppConfig struct {
 	BackendURL              string `validate:"required"`
 	GoogleOauthClientId     string `validate:"required"`
 	GoogleOauthClientSecret string `validate:"required"`
-	JwtSecret               string `validate:"required"`
+	JwtSecret               []byte `validate:"required"`
 	JwtExpirationMins       int    `validate:"required"`
 }
 
@@ -38,7 +38,7 @@ func LoadConfig() (*AppConfig, error) {
 		GoogleOauthClientSecret: GetStringEnv("GOOGLE_OAUTH_CLIENT_SECRET", ""),
 
 		// JWT
-		JwtSecret:         GetStringEnv("JWT_SECRET", ""),
+		JwtSecret:         []byte(GetStringEnv("JWT_SECRET", "")),
 		JwtExpirationMins: GetIntEnv("JWT_EXPIRATION_MINS", 24*60),
 	}
 
@@ -60,6 +60,6 @@ var TestConfig = &AppConfig{
 	BackendURL:              "http://localhost:8000",
 	GoogleOauthClientId:     "google-client-id",
 	GoogleOauthClientSecret: "google-client-secret",
-	JwtSecret:               "jwt-secret",
+	JwtSecret:               []byte("jwt-secret"),
 	JwtExpirationMins:       15,
 }

@@ -37,7 +37,7 @@ func (service *authService) GenerateJWT(user *users.UserModel) (string, error) {
 		},
 	}
 
-	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(service.config.JwtSecret))
+	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString(service.config.JwtSecret)
 	if err != nil {
 		return "", err
 	}

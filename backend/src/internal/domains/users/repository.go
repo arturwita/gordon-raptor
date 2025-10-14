@@ -4,12 +4,15 @@ import (
 	"context"
 
 	"gordon-raptor/src/internal/consts"
+	"gordon-raptor/src/internal/custom_errors"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type UserRepository interface {
 	CreateUser(dto *CreateUserDto, ctx context.Context) (*UserModel, error)
+	GetUserByEmail(email string, ctx context.Context) (*UserModel, error)
 }
 
 type userRepository struct {
@@ -28,4 +31,18 @@ func (repo *userRepository) CreateUser(dto *CreateUserDto, ctx context.Context) 
 	}
 
 	return user, nil
+}
+
+func (repo *userRepository) GetUserByEmail(email string, ctx context.Context) (*UserModel, error) {
+	filter := bson.M{"email": email}
+
+	var user UserModel
+	if err := repo.collection.FindOne(ctx, filter).Decode(&user); err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, custom_errors.DomainErrors.User.NotFound
+		}
+		return nil, err
+	}
+
+	return &user, nil
 }
