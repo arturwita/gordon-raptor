@@ -9,12 +9,18 @@ import (
 	"gordon-raptor/src/internal/di"
 	"gordon-raptor/src/internal/middlewares"
 	"gordon-raptor/src/internal/routes"
+	"gordon-raptor/src/migrations"
 )
 
 func NewApp(cfg *config.AppConfig) (*gin.Engine, error) {
 	deps, err := di.NewDIContainer(cfg)
 	if err != nil {
 		fmt.Println("Error creating DI container:", err)
+		return nil, err
+	}
+
+	if err := migrations.RunMigrations(deps.Database); err != nil {
+		fmt.Println("mongo migrations failed:", err)
 		return nil, err
 	}
 

@@ -8,6 +8,7 @@ import (
 	"gordon-raptor/src/internal/domains/users"
 	"gordon-raptor/src/pkg/db"
 
+	"go.mongodb.org/mongo-driver/mongo"
 	"golang.org/x/oauth2"
 )
 
@@ -20,6 +21,7 @@ type DIContainer struct {
 	AuthService       auth.AuthService
 	Config            *config.AppConfig
 	GoogleOauthConfig *oauth2.Config
+	Database          *mongo.Database
 }
 
 func NewDIContainer(cfg *config.AppConfig) (*DIContainer, error) {
@@ -67,6 +69,7 @@ func NewDIContainer(cfg *config.AppConfig) (*DIContainer, error) {
 		UserService:       userService,
 		GoogleService:     googleService,
 		AuthService:       authService,
+		Database:          database,
 		Config:            cfg,
 		GoogleOauthConfig: googleOauthConfig,
 	}, nil
