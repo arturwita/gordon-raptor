@@ -11,7 +11,7 @@ import (
 	"gordon-raptor/src/internal/routes"
 )
 
-func NewApp(cfg *config.Config) (*gin.Engine, error) {
+func NewApp(cfg *config.AppConfig) (*gin.Engine, error) {
 	deps, err := di.NewDIContainer(cfg)
 	if err != nil {
 		fmt.Println("Error creating DI container:", err)

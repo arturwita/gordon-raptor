@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func CORSMiddleware(cfg *config.Config) gin.HandlerFunc {
+func CORSMiddleware(cfg *config.AppConfig) gin.HandlerFunc {
 	config := cors.Config{
 		AllowOrigins:     []string{cfg.FrontendURL},
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},

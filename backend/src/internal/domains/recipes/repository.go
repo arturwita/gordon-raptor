@@ -32,24 +32,13 @@ func NewRecipeRepository(database *mongo.Database) (RecipeRepository, error) {
 }
 
 func (repo *recipeRepository) CreateRecipe(dto *contracts.CreateRecipeBodyDto, ctx context.Context) (*RecipeModel, error) {
-	recipe := RecipeModel{
-		Name:        dto.Name,
-		Ingredients: dto.Ingredients,
-		Picture:     dto.Picture,
-		CreatedAt:   primitive.NewDateTimeFromTime(time.Now()),
-		UpdatedAt:   primitive.NewDateTimeFromTime(time.Now()),
-	}
-	result, err := repo.collection.InsertOne(ctx, recipe)
+	recipe := NewRecipe(dto)
 
-	if err != nil {
+	if _, err := repo.collection.InsertOne(ctx, recipe); err != nil {
 		return nil, err
 	}
 
-	if recipeId, isOk := result.InsertedID.(primitive.ObjectID); isOk {
-		recipe.Id = recipeId
-	}
-
-	return &recipe, nil
+	return recipe, nil
 }
 
 func (repo *recipeRepository) GetRecipes(query *contracts.GetRecipesQueryDto, ctx context.Context) ([]*RecipeModel, error) {

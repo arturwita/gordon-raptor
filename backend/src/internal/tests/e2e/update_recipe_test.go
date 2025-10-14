@@ -53,7 +53,7 @@ func TestUpdateRecipe(t *testing.T) {
 		// when
 		req, _ := http.NewRequest(method, path, bytes.NewBuffer(reqBody))
 		req.Header.Set("Content-Type", "application/json")
-		req.Header.Set("x-api-key", config.TestConfig.AdminApiKey)
+		req.Header.Set("x-api-key", "")
 		response := httptest.NewRecorder()
 		server.ServeHTTP(response, req)
 
@@ -90,7 +90,7 @@ func TestUpdateRecipe(t *testing.T) {
 		// when
 		req, _ := http.NewRequest(method, path, bytes.NewBuffer(reqBody))
 		req.Header.Set("Content-Type", "application/json")
-		req.Header.Set("x-api-key", config.TestConfig.AdminApiKey)
+		req.Header.Set("x-api-key", "")
 		response := httptest.NewRecorder()
 		server.ServeHTTP(response, req)
 

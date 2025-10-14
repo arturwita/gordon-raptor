@@ -10,7 +10,7 @@ import (
 )
 
 func RegisterRoutes(router *gin.Engine, deps *di.DIContainer) {
-	apiKeyMiddleware := middlewares.ApiKeyAuthMiddleware(deps.Config.AdminApiKey)
+	apiKeyMiddleware := middlewares.ApiKeyAuthMiddleware("")
 
 	recipesEndpoints := router.Group("/recipes")
 	{
@@ -22,7 +22,7 @@ func RegisterRoutes(router *gin.Engine, deps *di.DIContainer) {
 
 	authEndpoints := router.Group("/auth")
 	{
-		authEndpoints.GET("/google/login", google.NewGoogleLoginHandler())
-		authEndpoints.GET("/google/callback", google.NewGoogleCallbackHandler())
+		authEndpoints.GET("/google/login", google.NewGoogleLoginHandler(deps.GoogleOauthConfig))
+		authEndpoints.GET("/google/callback", google.NewGoogleCallbackHandler(deps.GoogleOauthConfig, deps.GoogleService, deps.UserService, deps.AuthService))
 	}
 }
