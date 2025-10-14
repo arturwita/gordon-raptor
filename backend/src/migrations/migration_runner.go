@@ -3,6 +3,7 @@ package migrations
 import (
 	"context"
 	"fmt"
+	"gordon-raptor/src/internal/consts"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -10,7 +11,7 @@ import (
 )
 
 func RunMigrations(db *mongo.Database) error {
-	collection := db.Collection("migrations")
+	collection := db.Collection(consts.CollectionNames["migrations"])
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
