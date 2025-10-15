@@ -15,10 +15,12 @@ type httpErrorsMap = struct {
 
 type authErrorsMap = struct {
 	Forbidden httpError
+	Unauthorized httpError
 }
 
 var HttpErrors = httpErrorsMap{
 	Auth: authErrorsMap{
 		Forbidden: httpError{Status: http.StatusForbidden, Message: "You're not allowed to perform this action"},
+		Unauthorized: httpError{Status: http.StatusUnauthorized, Message: "Unauthorized"},
 	},
 }
