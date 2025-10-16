@@ -2,7 +2,7 @@ package tests_unit
 
 import (
 	"fmt"
-	"gordon-raptor/src/internal/config"
+	"gordon-raptor/src/pkg/utils"
 	"os"
 	"testing"
 
@@ -20,7 +20,7 @@ func TestGetEnvUtils(t *testing.T) {
 			os.Setenv(VARIABLE_NAME, expected)
 
 			// when
-			result := config.GetStringEnv(VARIABLE_NAME, defaultValue)
+			result := utils.GetStringEnv(VARIABLE_NAME, defaultValue)
 
 			// then
 			assert.Equal(t, result, expected)
@@ -32,7 +32,7 @@ func TestGetEnvUtils(t *testing.T) {
 			os.Unsetenv(VARIABLE_NAME)
 
 			// when
-			result := config.GetStringEnv(VARIABLE_NAME, expected)
+			result := utils.GetStringEnv(VARIABLE_NAME, expected)
 
 			// then
 			assert.Equal(t, result, expected)
@@ -47,7 +47,7 @@ func TestGetEnvUtils(t *testing.T) {
 			os.Setenv(VARIABLE_NAME, "2")
 
 			// when
-			result := config.GetIntEnv(VARIABLE_NAME, defaultValue)
+			result := utils.GetIntEnv(VARIABLE_NAME, defaultValue)
 
 			// then
 			assert.Equal(t, result, expected)
@@ -59,7 +59,7 @@ func TestGetEnvUtils(t *testing.T) {
 			os.Unsetenv(VARIABLE_NAME)
 
 			// when
-			result := config.GetIntEnv(VARIABLE_NAME, expected)
+			result := utils.GetIntEnv(VARIABLE_NAME, expected)
 
 			// then
 			assert.Equal(t, result, expected)
@@ -82,7 +82,7 @@ func TestGetEnvUtils(t *testing.T) {
 					os.Setenv(VARIABLE_NAME, fmt.Sprintf("%v", testCase.value))
 
 					// when
-					result := config.GetIntEnv(VARIABLE_NAME, expected)
+					result := utils.GetIntEnv(VARIABLE_NAME, expected)
 
 					// then
 					assert.Equal(t, result, expected)

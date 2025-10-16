@@ -3,6 +3,7 @@ package config
 import (
 	"errors"
 	"fmt"
+	"gordon-raptor/src/pkg/utils"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/joho/godotenv"
@@ -27,19 +28,19 @@ func LoadConfig() (*AppConfig, error) {
 
 	config := AppConfig{
 		// App
-		Port:         GetIntEnv("PORT", 8000),
-		MongoURL:     GetStringEnv("MONGO_URL", ""),
-		TrustedProxy: GetStringEnv("TRUSTED_PROXY", "127.0.0.1"),
-		FrontendURL:  GetStringEnv("FRONTEND_URL", "http://localhost:5173"),
-		BackendURL:   GetStringEnv("BACKEND_URL", "http://localhost:8000"),
+		Port:         utils.GetIntEnv("PORT", 8000),
+		MongoURL:     utils.GetStringEnv("MONGO_URL", ""),
+		TrustedProxy: utils.GetStringEnv("TRUSTED_PROXY", "127.0.0.1"),
+		FrontendURL:  utils.GetStringEnv("FRONTEND_URL", "http://localhost:5173"),
+		BackendURL:   utils.GetStringEnv("BACKEND_URL", "http://localhost:8000"),
 
 		// Google
-		GoogleOauthClientId:     GetStringEnv("GOOGLE_OAUTH_CLIENT_ID", ""),
-		GoogleOauthClientSecret: GetStringEnv("GOOGLE_OAUTH_CLIENT_SECRET", ""),
+		GoogleOauthClientId:     utils.GetStringEnv("GOOGLE_OAUTH_CLIENT_ID", ""),
+		GoogleOauthClientSecret: utils.GetStringEnv("GOOGLE_OAUTH_CLIENT_SECRET", ""),
 
 		// JWT
-		JwtSecret:         []byte(GetStringEnv("JWT_SECRET", "")),
-		JwtExpirationMins: GetIntEnv("JWT_EXPIRATION_MINS", 24*60),
+		JwtSecret:         []byte(utils.GetStringEnv("JWT_SECRET", "")),
+		JwtExpirationMins: utils.GetIntEnv("JWT_EXPIRATION_MINS", 24*60),
 	}
 
 	if err := validator.New().Struct(config); err != nil {

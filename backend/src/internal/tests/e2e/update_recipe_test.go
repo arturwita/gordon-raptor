@@ -9,6 +9,7 @@ import (
 	"gordon-raptor/src/internal/config"
 	"gordon-raptor/src/internal/consts"
 	"gordon-raptor/src/internal/contracts"
+	"gordon-raptor/src/internal/domains/users"
 	tests_mocks "gordon-raptor/src/internal/tests/mocks"
 	tests_utils "gordon-raptor/src/internal/tests/utils"
 	"gordon-raptor/src/pkg/db"
@@ -26,12 +27,17 @@ func TestUpdateRecipe(t *testing.T) {
 	var path = fmt.Sprintf("/recipes/%s", tests_mocks.MockRecipeId1)
 	server, _ := app.NewApp(config.TestConfig)
 	database, _ := db.NewMongoDatabase(config.TestConfig.MongoURL)
-	collection := database.Collection(consts.CollectionNames["recipes"])
 
-	recipesBuilder := tests_utils.NewGenericEntityBuilder(collection, tests_mocks.DefaultRecipeMock)
+	recipesCollection := database.Collection(consts.CollectionNames["recipes"])
+	usersCollection := database.Collection(consts.CollectionNames["users"])
+
+	userBuilder := tests_utils.NewGenericEntityBuilder(usersCollection, tests_mocks.DefaultUserMock)
+	recipesBuilder := tests_utils.NewGenericEntityBuilder(recipesCollection, tests_mocks.DefaultRecipeMock)
 
 	t.Run("updates the recipe in the database and returns 200", func(t *testing.T) {
 		tests_utils.CleanTestDatabase(database)
+		mockAdmin := userBuilder.WithID(tests_mocks.MockUserId1).OverrideProps(map[string]any{"role": users.AdminRole}).Build()
+		mockAdminJwt := tests_utils.GenerateTestJWT(mockAdmin)
 
 		// given
 		recipesBuilder.WithID(tests_mocks.MockRecipeId1).OverrideProps(map[string]any{
@@ -53,7 +59,7 @@ func TestUpdateRecipe(t *testing.T) {
 		// when
 		req, _ := http.NewRequest(method, path, bytes.NewBuffer(reqBody))
 		req.Header.Set("Content-Type", "application/json")
-		req.Header.Set("x-api-key", "")
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", mockAdminJwt))
 		response := httptest.NewRecorder()
 		server.ServeHTTP(response, req)
 
@@ -76,6 +82,8 @@ func TestUpdateRecipe(t *testing.T) {
 
 	t.Run("returns 404 when the recipe does not exist", func(t *testing.T) {
 		tests_utils.CleanTestDatabase(database)
+		mockAdmin := userBuilder.WithID(tests_mocks.MockUserId1).OverrideProps(map[string]any{"role": users.AdminRole}).Build()
+		mockAdminJwt := tests_utils.GenerateTestJWT(mockAdmin)
 
 		// given
 		expected := contracts.UpdateRecipeBodyDto{
@@ -90,7 +98,7 @@ func TestUpdateRecipe(t *testing.T) {
 		// when
 		req, _ := http.NewRequest(method, path, bytes.NewBuffer(reqBody))
 		req.Header.Set("Content-Type", "application/json")
-		req.Header.Set("x-api-key", "")
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", mockAdminJwt))
 		response := httptest.NewRecorder()
 		server.ServeHTTP(response, req)
 
@@ -104,7 +112,7 @@ func TestUpdateRecipe(t *testing.T) {
 		assert.Equal(t, "recipe not found", responseBody.Message)
 	})
 
-	t.Run("returns 403 if x-api-key header is missing", func(t *testing.T) {
+	t.Run("returns 401 if auth header is missing", func(t *testing.T) {
 		tests_utils.CleanTestDatabase(database)
 
 		// when
@@ -114,22 +122,44 @@ func TestUpdateRecipe(t *testing.T) {
 		server.ServeHTTP(response, req)
 
 		// then
-		assert.Equal(t, http.StatusForbidden, response.Code)
+		assert.Equal(t, http.StatusUnauthorized, response.Code)
 
 		var responseBody contracts.ErrorResponse
 		err := json.Unmarshal(response.Body.Bytes(), &responseBody)
 		assert.NoError(t, err)
 
-		assert.Equal(t, "You're not allowed to perform this action", responseBody.Message)
+		assert.Equal(t, "Unauthorized", responseBody.Message)
 	})
 
-	t.Run("returns 403 if x-api-key header has invalid value", func(t *testing.T) {
+	t.Run("returns 401 if auth header has invalid value", func(t *testing.T) {
 		tests_utils.CleanTestDatabase(database)
 
 		// when
 		req, _ := http.NewRequest(method, path, nil)
 		req.Header.Set("Content-Type", "application/json")
-		req.Header.Set("x-api-key", "invalid-api-key")
+		req.Header.Set("Authorization", "Bearer INVALID_TOKEN")
+		response := httptest.NewRecorder()
+		server.ServeHTTP(response, req)
+
+		// then
+		assert.Equal(t, http.StatusUnauthorized, response.Code)
+
+		var responseBody contracts.ErrorResponse
+		err := json.Unmarshal(response.Body.Bytes(), &responseBody)
+		assert.NoError(t, err)
+
+		assert.Equal(t, "Unauthorized", responseBody.Message)
+	})
+
+	t.Run("returns 403 if non-admin tries to perform the request", func(t *testing.T) {
+		tests_utils.CleanTestDatabase(database)
+		mockUser := userBuilder.WithID(tests_mocks.MockUserId1).OverrideProps(map[string]any{"role": users.UserRole}).Build()
+		mockUserJwt := tests_utils.GenerateTestJWT(mockUser)
+
+		// when
+		req, _ := http.NewRequest(method, path, nil)
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", mockUserJwt))
 		response := httptest.NewRecorder()
 		server.ServeHTTP(response, req)
 

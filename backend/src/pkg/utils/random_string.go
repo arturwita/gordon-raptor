@@ -6,11 +6,14 @@ import (
 )
 
 func GenerateRandomString(n int) string {
-	bytes := make([]byte, n)
+	if n <= 0 {
+		return ""
+	}
 
+	bytes := make([]byte, (n + 1) / 2)
 	if _, err := rand.Read(bytes); err != nil {
 		return ""
 	}
 
-	return hex.EncodeToString(bytes)
+	return hex.EncodeToString(bytes)[:n]
 }

@@ -12,7 +12,7 @@ import (
 
 func IsAdminMiddleware() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		customError :=custom_errors.HttpErrors.Auth.Forbidden
+		customError := custom_errors.HttpErrors.Auth.Forbidden
 
 		claims, exists := context.Get("claims")
 		if !exists {

@@ -13,7 +13,7 @@ import (
 func IsLoggedInMiddleware(jwtSecret []byte) gin.HandlerFunc {
 	return func(context *gin.Context) {
 		unauthorizedError := custom_errors.HttpErrors.Auth.Unauthorized
-		unauthorizedResponse := &contracts.ErrorResponse{ Message: unauthorizedError.Message}
+		unauthorizedResponse := &contracts.ErrorResponse{Message: unauthorizedError.Message}
 
 		authHeader := context.GetHeader("Authorization")
 		if authHeader == "" {

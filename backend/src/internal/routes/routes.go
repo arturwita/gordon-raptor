@@ -12,7 +12,7 @@ import (
 func RegisterRoutes(router *gin.Engine, deps *di.DIContainer) {
 	isLoggedIn := middlewares.IsLoggedInMiddleware(deps.Config.JwtSecret)
 	isAdmin := middlewares.IsAdminMiddleware()
-	
+
 	authEndpoints := router.Group("/auth")
 	{
 		authEndpoints.GET("/google/login", google.NewGoogleLoginHandler(deps.GoogleOauthConfig))
@@ -29,6 +29,5 @@ func RegisterRoutes(router *gin.Engine, deps *di.DIContainer) {
 		recipesEndpoints.PUT("/:id", isAdmin, recipes.NewUpdateRecipeHandler(deps.RecipeService))
 		recipesEndpoints.DELETE("/:id", isAdmin, recipes.NewDeleteRecipeHandler(deps.RecipeService))
 	}
-
 
 }
