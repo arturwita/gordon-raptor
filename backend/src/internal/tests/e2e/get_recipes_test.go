@@ -25,14 +25,21 @@ func TestGetRecipes(t *testing.T) {
 	server, _ := app.NewApp(config.TestConfig)
 	database, _ := db.NewMongoDatabase(config.TestConfig.MongoURL)
 
-	recipesBuilder := tests_utils.NewGenericEntityBuilder(database.Collection(consts.CollectionNames["recipes"]), tests_mocks.DefaultRecipeMock)
+	recipesCollection := database.Collection(consts.CollectionNames["recipes"])
+	usersCollection := database.Collection(consts.CollectionNames["users"])
+
+	recipesBuilder := tests_utils.NewGenericEntityBuilder(recipesCollection, tests_mocks.DefaultRecipeMock)
+	userBuilder := tests_utils.NewGenericEntityBuilder(usersCollection, tests_mocks.DefaultUserMock)
 
 	t.Run("returns empty list with status 200 when there are no recipes", func(t *testing.T) {
 		tests_utils.CleanTestDatabase(database)
+		mockUser := userBuilder.WithID(tests_mocks.MockUserId1).Build()
+		mockJwt := tests_utils.GenerateTestJWT(mockUser)
 
 		// when
 		req, _ := http.NewRequest(method, path, nil)
 		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", mockJwt))
 		response := httptest.NewRecorder()
 		server.ServeHTTP(response, req)
 
@@ -48,6 +55,8 @@ func TestGetRecipes(t *testing.T) {
 
 	t.Run("returns the recipes with status 200", func(t *testing.T) {
 		tests_utils.CleanTestDatabase(database)
+		mockUser := userBuilder.WithID(tests_mocks.MockUserId1).Build()
+		mockJwt := tests_utils.GenerateTestJWT(mockUser)
 
 		// given
 		recipesBuilder.WithID(tests_mocks.MockRecipeId1).OverrideProps(map[string]any{"name": "spaghetti"}).Build()
@@ -56,6 +65,7 @@ func TestGetRecipes(t *testing.T) {
 		// when
 		req, _ := http.NewRequest(method, path, nil)
 		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", mockJwt))
 		response := httptest.NewRecorder()
 		server.ServeHTTP(response, req)
 
@@ -73,6 +83,8 @@ func TestGetRecipes(t *testing.T) {
 
 	t.Run("properly handles page/limit parameters", func(t *testing.T) {
 		tests_utils.CleanTestDatabase(database)
+		mockUser := userBuilder.WithID(tests_mocks.MockUserId1).Build()
+		mockJwt := tests_utils.GenerateTestJWT(mockUser)
 
 		// given
 		page := 2
@@ -83,6 +95,7 @@ func TestGetRecipes(t *testing.T) {
 		// when
 		req, _ := http.NewRequest(method, fmt.Sprintf("%s?page=%d&limit=%d", path, page, limit), nil)
 		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", mockJwt))
 		response := httptest.NewRecorder()
 		server.ServeHTTP(response, req)
 
@@ -99,6 +112,8 @@ func TestGetRecipes(t *testing.T) {
 
 	t.Run("returns only recipes containing the given search string", func(t *testing.T) {
 		tests_utils.CleanTestDatabase(database)
+		mockUser := userBuilder.WithID(tests_mocks.MockUserId1).Build()
+		mockJwt := tests_utils.GenerateTestJWT(mockUser)
 
 		// given
 		name := "piz"
@@ -108,6 +123,7 @@ func TestGetRecipes(t *testing.T) {
 		// when
 		req, _ := http.NewRequest(method, fmt.Sprintf("%s?name=%s", path, name), nil)
 		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", mockJwt))
 		response := httptest.NewRecorder()
 		server.ServeHTTP(response, req)
 
@@ -120,5 +136,44 @@ func TestGetRecipes(t *testing.T) {
 
 		assert.Equal(t, 1, len(responseBody.Recipes))
 		assert.Equal(t, "pizza", responseBody.Recipes[0].Name)
+	})
+
+	t.Run("returns 401 when auth header is missing", func(t *testing.T) {
+		tests_utils.CleanTestDatabase(database)
+
+		// when
+		req, _ := http.NewRequest(method, path, nil)
+		req.Header.Set("Content-Type", "application/json")
+		response := httptest.NewRecorder()
+		server.ServeHTTP(response, req)
+
+		// then
+		assert.Equal(t, http.StatusUnauthorized, response.Code)
+
+		var responseBody contracts.ErrorResponse
+		err := json.Unmarshal(response.Body.Bytes(), &responseBody)
+		assert.NoError(t, err)
+
+		assert.Equal(t, "Unauthorized", responseBody.Message)
+	})
+
+	t.Run("returns 401 when auth header has invalid value", func(t *testing.T) {
+		tests_utils.CleanTestDatabase(database)
+
+		// when
+		req, _ := http.NewRequest(method, path, nil)
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", "Bearer INVALID_TOKEN")
+		response := httptest.NewRecorder()
+		server.ServeHTTP(response, req)
+
+		// then
+		assert.Equal(t, http.StatusUnauthorized, response.Code)
+
+		var responseBody contracts.ErrorResponse
+		err := json.Unmarshal(response.Body.Bytes(), &responseBody)
+		assert.NoError(t, err)
+
+		assert.Equal(t, "Unauthorized", responseBody.Message)
 	})
 }

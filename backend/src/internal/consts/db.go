@@ -1,5 +1,7 @@
 package consts
 
 var CollectionNames = map[string]string{
-	"recipes": "recipes",
+	"migrations": "migrations",
+	"recipes":    "recipes",
+	"users":      "users",
 }

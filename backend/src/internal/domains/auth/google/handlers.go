@@ -1,50 +1,55 @@
 package google
 
 import (
-	"encoding/json"
 	"gordon-raptor/src/internal/contracts"
+	"gordon-raptor/src/internal/domains/auth"
+	"gordon-raptor/src/internal/domains/users"
+	"gordon-raptor/src/pkg/utils"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"golang.org/x/oauth2"
 )
 
-func NewGoogleLoginHandler() gin.HandlerFunc {
+func NewGoogleLoginHandler(cfg *oauth2.Config) gin.HandlerFunc {
+	randomStateString := utils.GenerateRandomString(8)
+
 	return func(context *gin.Context) {
-		url := GoogleOauthConfig.AuthCodeURL("random-state-string", oauth2.AccessTypeOffline) // todo: replace random-string
+		url := cfg.AuthCodeURL(randomStateString, oauth2.AccessTypeOffline)
 		context.Redirect(http.StatusTemporaryRedirect, url)
 	}
 }
 
-func NewGoogleCallbackHandler() gin.HandlerFunc {
+func NewGoogleCallbackHandler(
+	cfg *oauth2.Config,
+	googleService GoogleService,
+	userService users.UserService,
+	authService auth.AuthService,
+) gin.HandlerFunc {
 	return func(context *gin.Context) {
-		code := context.Query("code")
-		if code == "" {
-			context.JSON(http.StatusBadRequest, contracts.ErrorResponse{Message: "code not found"})
-			return
+		ctx := context.Request.Context()
+
+		googleUserData, customError := googleService.GetUserData(context)
+		if customError != nil {
+			context.JSON(http.StatusBadRequest, customError)
 		}
 
-		token, err := GoogleOauthConfig.Exchange(context, code)
-		if err != nil {
-			context.JSON(http.StatusInternalServerError, contracts.ErrorResponse{Message: "failed to exchange oauth token"})
-			return
+		user, _ := userService.GetUserByEmail(googleUserData.Email, ctx)
+		if user == nil {
+			createUserDto := auth.MapGoogleUserToCreateUserDto(googleUserData)
+			var err error
+			user, err = userService.CreateUser(createUserDto, ctx)
+			if err != nil {
+				context.JSON(http.StatusBadRequest, &contracts.ErrorResponse{Message: "failed to create a user"})
+				return
+			}
 		}
 
-		client := GoogleOauthConfig.Client(context, token)
-
-		response, err := client.Get("https://www.googleapis.com/oauth2/v3/userinfo")
-		if err != nil {
-			context.JSON(http.StatusInternalServerError, contracts.ErrorResponse{Message: "failed to get user info"})
-			return
-		}
-		defer response.Body.Close()
-
-		var userData contracts.GoogleOauthUser
-		if err := json.NewDecoder(response.Body).Decode(&userData); err != nil {
-			context.JSON(http.StatusInternalServerError, contracts.ErrorResponse{Message: "failed to decode user payload"})
-			return
+		token, err := authService.GenerateJWT(user)
+		if err != nil || token == "" {
+			context.JSON(http.StatusBadRequest, &contracts.ErrorResponse{Message: "failed to login"})
 		}
 
-		context.JSON(http.StatusOK, userData)
+		context.JSON(http.StatusOK, contracts.LoginResponseDto{Token: token})
 	}
 }

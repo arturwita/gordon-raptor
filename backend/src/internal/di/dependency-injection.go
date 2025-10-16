@@ -2,21 +2,35 @@ package di
 
 import (
 	"gordon-raptor/src/internal/config"
+	"gordon-raptor/src/internal/domains/auth"
+	"gordon-raptor/src/internal/domains/auth/google"
 	"gordon-raptor/src/internal/domains/recipes"
+	"gordon-raptor/src/internal/domains/users"
 	"gordon-raptor/src/pkg/db"
+
+	"go.mongodb.org/mongo-driver/mongo"
+	"golang.org/x/oauth2"
 )
 
 type DIContainer struct {
-	RecipeRepository recipes.RecipeRepository
-	RecipeService    recipes.RecipeService
-	Config           *config.Config
+	RecipeRepository  recipes.RecipeRepository
+	RecipeService     recipes.RecipeService
+	UserRepository    users.UserRepository
+	UserService       users.UserService
+	GoogleService     google.GoogleService
+	AuthService       auth.AuthService
+	Config            *config.AppConfig
+	GoogleOauthConfig *oauth2.Config
+	Database          *mongo.Database
 }
 
-func NewDIContainer(cfg *config.Config) (*DIContainer, error) {
+func NewDIContainer(cfg *config.AppConfig) (*DIContainer, error) {
 	database, err := db.NewMongoDatabase(cfg.MongoURL)
 	if err != nil {
 		return nil, err
 	}
+
+	googleOauthConfig := config.NewGoogleOauthConfig(cfg)
 
 	recipeRepository, err := recipes.NewRecipeRepository(database)
 	if err != nil {
@@ -28,9 +42,35 @@ func NewDIContainer(cfg *config.Config) (*DIContainer, error) {
 		return nil, err
 	}
 
+	userRepository, err := users.NewUserRepository(database)
+	if err != nil {
+		return nil, err
+	}
+
+	userService, err := users.NewUserService(userRepository)
+	if err != nil {
+		return nil, err
+	}
+
+	googleService, err := google.NewGoogleService(googleOauthConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	authService, err := auth.NewAuthService(cfg)
+	if err != nil {
+		return nil, err
+	}
+
 	return &DIContainer{
-		RecipeRepository: recipeRepository,
-		RecipeService:    recipeService,
-		Config:           cfg,
+		RecipeRepository:  recipeRepository,
+		RecipeService:     recipeService,
+		UserRepository:    userRepository,
+		UserService:       userService,
+		GoogleService:     googleService,
+		AuthService:       authService,
+		Database:          database,
+		Config:            cfg,
+		GoogleOauthConfig: googleOauthConfig,
 	}, nil
 }
