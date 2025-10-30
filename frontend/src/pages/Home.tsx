@@ -1,14 +1,15 @@
-import { type FC, useEffect, useState } from "react";
+import { type FC, memo, useEffect, useState } from "react";
 import { Toggle } from "@/components/ui/toggle";
 import { Sun, Moon } from "lucide-react";
 import { GoogleLoginButton } from "../components/GoogleLoginButton";
-import { useNavigate } from "react-router";
-import { AppRoutes } from "../router";
+import { appConfig } from "../lib/config";
 
-const LandingPage: FC = () => {
+const Home: FC = () => {
   const [darkMode, setDarkMode] = useState(true);
 
-  const navigate = useNavigate();
+  const handleGoogleLogin = () => {
+    window.location.href = `${appConfig.baseApiUrl}/auth/google/login`;
+  };
 
   useEffect(() => {
     const root = window.document.documentElement;
@@ -42,7 +43,7 @@ const LandingPage: FC = () => {
           Cook along with an AI assistant in real time. <br /> Get started now.
         </p>
 
-        <GoogleLoginButton onClick={() => navigate(AppRoutes.Login)} />
+        <GoogleLoginButton onClick={() => handleGoogleLogin()} />
       </main>
 
       <footer className="absolute bottom-4 text-sm text-gray-500 dark:text-gray-400">
@@ -52,4 +53,4 @@ const LandingPage: FC = () => {
   );
 };
 
-export default LandingPage;
+export default memo(Home);
