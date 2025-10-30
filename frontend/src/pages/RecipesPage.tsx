@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import { type FC, useEffect, useState } from "react";
 import { fetchRecipes, type RecipeDto } from "../api/recipes";
 import { RecipeCard } from "../components/RecipeCard";
 
-export const RecipesPage: React.FC = () => {
+export const RecipesPage: FC = () => {
   const [recipes, setRecipes] = useState<RecipeDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
