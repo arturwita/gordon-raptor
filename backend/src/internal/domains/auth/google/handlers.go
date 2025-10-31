@@ -53,7 +53,7 @@ func NewGoogleCallbackHandler(
 		}
 
 		redirectUrl := fmt.Sprintf("%s/login/google/callback?token=%s", appConfig.FrontendURL, token)
- 
+
 		context.Redirect(http.StatusTemporaryRedirect, redirectUrl)
 	}
 }

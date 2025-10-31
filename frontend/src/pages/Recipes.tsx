@@ -58,7 +58,7 @@ const Recipes = () => {
       const data: GetRecipesResponseDto = await response.json();
 
       setRecipes(data.recipes);
-      setTotalPages(data?.meta?.totalPages || 2); // todo: add meta to backend
+      setTotalPages(data.meta.totalPages);
     } catch (err) {
       console.error(err);
     } finally {

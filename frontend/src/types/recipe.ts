@@ -1,4 +1,4 @@
-import type { BasePagination } from "../lib/pagination";
+import type { BasePagination } from "./pagination";
 
 export type RecipeDto = {
   id: string;

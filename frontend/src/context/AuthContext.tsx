@@ -8,7 +8,6 @@ import {
 import { jwtDecode } from "jwt-decode";
 import type { UserJwtPayload } from "../types/user";
 import { AppRoutes } from "../routes/AppRoutes";
-import { useNavigate } from "react-router";
 
 interface AuthContextType {
   user: UserJwtPayload | null;

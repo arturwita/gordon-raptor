@@ -18,7 +18,7 @@ import (
 
 type RecipeRepository interface {
 	CreateRecipe(dto *contracts.CreateRecipeBodyDto, ctx context.Context) (*RecipeModel, error)
-	GetRecipes(query *contracts.GetRecipesQueryDto, ctx context.Context) ([]*RecipeModel, error)
+	GetRecipes(query *contracts.GetRecipesQueryDto, ctx context.Context) ([]*RecipeModel, int, error)
 	UpdateRecipe(id string, dto *contracts.UpdateRecipeBodyDto, ctx context.Context) (*RecipeModel, error)
 	DeleteRecipe(id string, ctx context.Context) error
 }
@@ -41,7 +41,7 @@ func (repo *recipeRepository) CreateRecipe(dto *contracts.CreateRecipeBodyDto, c
 	return recipe, nil
 }
 
-func (repo *recipeRepository) GetRecipes(query *contracts.GetRecipesQueryDto, ctx context.Context) ([]*RecipeModel, error) {
+func (repo *recipeRepository) GetRecipes(query *contracts.GetRecipesQueryDto, ctx context.Context) ([]*RecipeModel, int, error) {
 	skip := int64((query.Page - 1) * query.Limit)
 	limit := int64(query.Limit)
 	filter := bson.M{
@@ -50,25 +50,46 @@ func (repo *recipeRepository) GetRecipes(query *contracts.GetRecipesQueryDto, ct
 			"$options": "i",
 		},
 	}
-	opts := options.Find().SetSkip(skip).SetLimit(limit)
 
-	cursor, err := repo.collection.Find(ctx, filter, opts)
-	if err != nil {
-		return nil, err
+	pipeline := mongo.Pipeline{
+		{{Key: "$match", Value: filter}},
+		{{
+			Key: "$facet",
+			Value: bson.M{
+				"items": mongo.Pipeline{
+					{{Key: "$skip", Value: skip}},
+					{{Key: "$limit", Value: limit}},
+				},
+				"total": mongo.Pipeline{
+					{{Key: "$count", Value: "count"}},
+				},
+			},
+		}},
 	}
 
+	cursor, err := repo.collection.Aggregate(ctx, pipeline)
+	if err != nil {
+		return nil, 0, err
+	}
 	defer cursor.Close(ctx)
 
-	var recipes []*RecipeModel
-	for cursor.Next(ctx) {
-		var recipe RecipeModel
-		if err := cursor.Decode(&recipe); err != nil {
-			return nil, err
-		}
-		recipes = append(recipes, &recipe)
+	var result []struct {
+		Items []*RecipeModel `bson:"items"`
+		Total []struct {
+			Count int `bson:"count"`
+		} `bson:"total"`
 	}
 
-	return recipes, nil
+	if err := cursor.All(ctx, &result); err != nil {
+		return nil, 0, err
+	}
+
+	total := 0
+	if len(result[0].Total) > 0 {
+		total = result[0].Total[0].Count
+	}
+
+	return result[0].Items, total, nil
 }
 
 func (repo *recipeRepository) UpdateRecipe(id string, dto *contracts.UpdateRecipeBodyDto, ctx context.Context) (*RecipeModel, error) {

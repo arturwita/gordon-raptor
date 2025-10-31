@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"gordon-raptor/src/internal/contracts"
+	"gordon-raptor/src/pkg/utils"
 )
 
 func NewCreateRecipeHandler(recipeService RecipeService) gin.HandlerFunc {
@@ -30,7 +31,7 @@ func NewGetRecipesHandler(recipeService RecipeService) gin.HandlerFunc {
 		ctx := context.Request.Context()
 		query := ParseGetRecipesQuery(context)
 
-		recipes, err := recipeService.GetRecipes(query, ctx)
+		recipes, totalItems, err := recipeService.GetRecipes(query, ctx)
 		if err != nil {
 			context.JSON(http.StatusInternalServerError, &contracts.ErrorResponse{Message: err.Error()})
 			return
@@ -38,6 +39,11 @@ func NewGetRecipesHandler(recipeService RecipeService) gin.HandlerFunc {
 
 		context.JSON(http.StatusOK, &contracts.GetRecipesResponseDto{
 			Recipes: MapRecipesToDtos(recipes),
+			Meta: utils.GetBasePaginationMeta(&utils.GetBasePaginationMetaParams{
+				Page:       query.Page,
+				Limit:      query.Limit,
+				TotalItems: totalItems,
+			}),
 		})
 	}
 }

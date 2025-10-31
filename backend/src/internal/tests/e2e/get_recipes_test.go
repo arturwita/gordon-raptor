@@ -51,6 +51,7 @@ func TestGetRecipes(t *testing.T) {
 		assert.NoError(t, err)
 
 		assert.Equal(t, 0, len(responseBody.Recipes))
+		assert.NotEmpty(t, responseBody.Meta)
 	})
 
 	t.Run("returns the recipes with status 200", func(t *testing.T) {
@@ -79,6 +80,7 @@ func TestGetRecipes(t *testing.T) {
 		assert.Equal(t, 2, len(responseBody.Recipes))
 		assert.Equal(t, "spaghetti", responseBody.Recipes[0].Name)
 		assert.Equal(t, "pizza", responseBody.Recipes[1].Name)
+		assert.NotEmpty(t, responseBody.Meta)
 	})
 
 	t.Run("properly handles page/limit parameters", func(t *testing.T) {
@@ -108,6 +110,15 @@ func TestGetRecipes(t *testing.T) {
 
 		assert.Equal(t, 1, len(responseBody.Recipes))
 		assert.Equal(t, "pizza", responseBody.Recipes[0].Name)
+
+		assert.Equal(t, 2, responseBody.Meta.Page)
+		assert.Equal(t, 1, responseBody.Meta.Limit)
+		assert.Equal(t, 2, responseBody.Meta.TotalItems)
+		assert.Equal(t, 2, responseBody.Meta.TotalPages)
+		assert.False(t, responseBody.Meta.HasNextPage)
+		assert.True(t, responseBody.Meta.HasPrevPage)
+		assert.Nil(t, responseBody.Meta.NextPage)
+		assert.Equal(t, 1, int(*responseBody.Meta.PrevPage))
 	})
 
 	t.Run("returns only recipes containing the given search string", func(t *testing.T) {
@@ -136,6 +147,7 @@ func TestGetRecipes(t *testing.T) {
 
 		assert.Equal(t, 1, len(responseBody.Recipes))
 		assert.Equal(t, "pizza", responseBody.Recipes[0].Name)
+		assert.NotEmpty(t, responseBody.Meta)
 	})
 
 	t.Run("returns 401 when auth header is missing", func(t *testing.T) {
