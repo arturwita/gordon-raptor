@@ -16,7 +16,7 @@ func RegisterRoutes(router *gin.Engine, deps *di.DIContainer) {
 	authEndpoints := router.Group("/auth")
 	{
 		authEndpoints.GET("/google/login", google.NewGoogleLoginHandler(deps.GoogleOauthConfig))
-		authEndpoints.GET("/google/callback", google.NewGoogleCallbackHandler(deps.GoogleOauthConfig, deps.GoogleService, deps.UserService, deps.AuthService))
+		authEndpoints.GET("/google/callback", google.NewGoogleCallbackHandler(deps.Config, deps.GoogleService, deps.UserService, deps.AuthService))
 	}
 
 	authorizedRoutes := router.Group("")

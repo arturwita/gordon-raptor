@@ -1,15 +1,4 @@
-export type RecipeDto = {
-  id: string;
-  name: string;
-  imageUrl?: string;
-  ingredients: Record<string, string>;
-  createdAt: string;
-  updatedAt: string;
-};
-
-type GetRecipesResponseDto = {
-  recipes: RecipeDto[];
-};
+import type { RecipeDto, GetRecipesResponseDto } from "../types/recipe";
 
 export async function fetchRecipes(): Promise<RecipeDto[]> {
   const res = await fetch("http://localhost:8000/recipes");

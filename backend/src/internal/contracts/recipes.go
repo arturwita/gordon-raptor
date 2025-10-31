@@ -26,7 +26,8 @@ type GetRecipesQueryDto struct {
 }
 
 type GetRecipesResponseDto struct {
-	Recipes []*RecipeDto `json:"recipes"`
+	Recipes []*RecipeDto       `json:"recipes"`
+	Meta    *BasePaginationDto `json:"meta"`
 }
 
 type UpdateRecipeBodyDto struct {
