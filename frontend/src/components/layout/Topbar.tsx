@@ -7,7 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ThemeToggle } from "../ThemeToggle";
+import { ThemeButton } from "../ThemeButton";
 import type { UserJwtPayload } from "../../types/user";
 import { AppRoutes } from "../../routes/AppRoutes";
 
@@ -36,7 +36,7 @@ export const Topbar: FC<TopbarProps> = ({ user, onLogout }) => {
       </div>
 
       <div className="flex items-center gap-6">
-        <ThemeToggle />
+        <ThemeButton />
 
         <DropdownMenu>
           <DropdownMenuTrigger className="flex items-center gap-3 focus:outline-none">
