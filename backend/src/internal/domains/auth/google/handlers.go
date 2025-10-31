@@ -1,6 +1,8 @@
 package google
 
 import (
+	"fmt"
+	"gordon-raptor/src/internal/config"
 	"gordon-raptor/src/internal/contracts"
 	"gordon-raptor/src/internal/domains/auth"
 	"gordon-raptor/src/internal/domains/users"
@@ -21,7 +23,7 @@ func NewGoogleLoginHandler(cfg *oauth2.Config) gin.HandlerFunc {
 }
 
 func NewGoogleCallbackHandler(
-	cfg *oauth2.Config,
+	appConfig *config.AppConfig,
 	googleService GoogleService,
 	userService users.UserService,
 	authService auth.AuthService,
@@ -50,6 +52,8 @@ func NewGoogleCallbackHandler(
 			context.JSON(http.StatusBadRequest, &contracts.ErrorResponse{Message: "failed to login"})
 		}
 
-		context.JSON(http.StatusOK, contracts.LoginResponseDto{Token: token})
+		redirectUrl := fmt.Sprintf("%s/login/google/callback?token=%s", appConfig.FrontendURL, token)
+
+		context.Redirect(http.StatusTemporaryRedirect, redirectUrl)
 	}
 }

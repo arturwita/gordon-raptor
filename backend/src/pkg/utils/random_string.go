@@ -10,7 +10,7 @@ func GenerateRandomString(n int) string {
 		return ""
 	}
 
-	bytes := make([]byte, (n + 1) / 2)
+	bytes := make([]byte, (n+1)/2)
 	if _, err := rand.Read(bytes); err != nil {
 		return ""
 	}

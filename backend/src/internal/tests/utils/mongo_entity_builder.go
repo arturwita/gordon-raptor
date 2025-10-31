@@ -46,7 +46,7 @@ func (builder *GenericEntityBuilder[T]) Build() *T {
 		fmt.Println(fmt.Sprintf("Failed to save entity with id: '%s'", entity.InsertedID), err)
 		return nil
 	}
-	
+
 	fmt.Println("MARSHALLING")
 	resultBson := builder.entity
 	var result T
@@ -56,7 +56,7 @@ func (builder *GenericEntityBuilder[T]) Build() *T {
 		fmt.Println(fmt.Sprintf("Failed unmarshall entity with id: '%s'", entity.InsertedID), err)
 		return nil
 	}
-	
+
 	fmt.Println("MAKING JSON")
 	builder.entity = make(bson.M)
 	fmt.Println("COPYING")
