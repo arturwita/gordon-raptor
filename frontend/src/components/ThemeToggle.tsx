@@ -15,7 +15,7 @@ export const ThemeToggle: FC = () => {
   }, [darkMode]);
 
   return (
-    <div className="absolute top-6 right-6">
+    <div>
       <Toggle
         pressed={darkMode}
         onPressedChange={setDarkMode}

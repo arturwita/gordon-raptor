@@ -74,54 +74,61 @@ const Recipes = () => {
     <div className="min-h-screen px-6 py-6 bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
       <Topbar user={user!} onLogout={logout} />
 
-      <InputGroup>
-        <InputGroupInput
-          placeholder="Search..."
-          className="max-w-md"
-          value={search}
-          onChange={(event) => {
-            setPage(1);
-            setSearch(event.target.value);
-          }}
-        />
-        <InputGroupAddon>
-          <Search />
-        </InputGroupAddon>
-      </InputGroup>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+        <div className="w-[17%] min-w-[180px]">
+          <InputGroup>
+            <InputGroupInput
+              placeholder="Search recipes..."
+              value={search}
+              onChange={(event) => {
+                setPage(1);
+                setSearch(event.target.value);
+              }}
+            />
+            <InputGroupAddon>
+              <Search />
+            </InputGroupAddon>
+          </InputGroup>
+        </div>
 
-      <div className="flex items-center gap-4 mb-4">
-        <span>Items per page:</span>
-        <select
-          value={limit}
-          onChange={(e) => {
-            setLimit(Number(e.target.value));
-            setPage(1);
-          }}
-          className="px-2 py-1 rounded bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700"
-        >
-          {LIMIT_OPTIONS.map((n) => (
-            <option key={n} value={n}>
-              {n}
-            </option>
-          ))}
-        </select>
+        <div className="flex items-center gap-4 ml-auto">
+          <div className="flex items-center gap-2">
+            <span className="text-sm">Recipes per page:</span>
+            <select
+              value={limit}
+              onChange={(e) => {
+                setLimit(Number(e.target.value));
+                setPage(1);
+              }}
+              className="px-2 py-1 rounded bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-sm"
+            >
+              {LIMIT_OPTIONS.map((n) => (
+                <option key={n} value={n}>
+                  {n}
+                </option>
+              ))}
+            </select>
+          </div>
 
-        <div className="ml-auto flex gap-2">
-          <Button
-            variant="outline"
-            disabled={page === 1}
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-          >
-            Previous
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page === 1}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+            >
+              Previous
+            </Button>
 
-          <Button
-            variant="outline"
-            disabled={page === totalPages}
-            onClick={() => setPage((p) => p + 1)}
-          >
-            Next
-          </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page === totalPages}
+              onClick={() => setPage((p) => p + 1)}
+            >
+              Next
+            </Button>
+          </div>
         </div>
       </div>
 
