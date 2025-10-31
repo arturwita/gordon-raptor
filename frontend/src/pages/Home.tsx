@@ -11,7 +11,9 @@ const Home: FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-white text-gray-900 transition-colors duration-300 dark:bg-gray-900 dark:text-gray-100 px-6">
-      <ThemeToggle />
+      <div className="absolute top-6 right-6">
+        <ThemeToggle />
+      </div>
 
       <main className="text-center max-w-md">
         <h1 className="text-4xl font-bold mb-4">Gordon Raptor</h1>
