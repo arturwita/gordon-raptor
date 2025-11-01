@@ -1,7 +1,14 @@
 import { useEffect, useState, useCallback } from "react";
 import { RecipeCard } from "@/components/recipes/RecipeCard";
 import { RecipeDrawer } from "@/components/recipes/RecipeDrawer";
-import { Loader2, Search, Pencil, Trash2, Plus } from "lucide-react";
+import {
+  Loader2,
+  Search,
+  Pencil,
+  Trash2,
+  Plus,
+  FileQuestion,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import debounce from "lodash.debounce";
 import {
@@ -230,6 +237,14 @@ const Recipes = () => {
       {loading ? (
         <div className="w-full flex justify-center py-20">
           <Loader2 className="w-10 h-10 animate-spin text-gray-600 dark:text-gray-300" />
+        </div>
+      ) : !recipes.length ? (
+        <div className="w-full flex flex-col items-center justify-center py-20 text-gray-500 dark:text-gray-400">
+          <FileQuestion className="w-12 h-12 mb-3 opacity-60" />
+          <p className="text-lg font-medium">No recipes found</p>
+          <p className="text-sm opacity-80">
+            Try adjusting your search or filters.
+          </p>
         </div>
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
