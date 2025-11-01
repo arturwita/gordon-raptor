@@ -20,7 +20,7 @@ func NewApp(cfg *config.AppConfig) (*gin.Engine, error) {
 	}
 
 	if err := migrations.RunMigrations(deps.Database); err != nil {
-		fmt.Println("mongo migrations failed:", err)
+		fmt.Println("Mongo migrations failed:", err)
 		return nil, err
 	}
 
