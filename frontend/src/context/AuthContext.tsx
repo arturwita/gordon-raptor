@@ -40,10 +40,9 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const logout = () => {
     setUser(null);
     setToken(null);
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
+    localStorage.clear();
 
-    window.location.href = AppRoutes.Home;
+    window.location.replace(AppRoutes.Home);
   };
 
   const isAdmin = user?.role === UserRole.Admin;

@@ -48,7 +48,7 @@ func (builder *GenericEntityBuilder[T]) Build() *T {
 	var result T
 	resultBson := builder.entity
 	bsonBytes, _ := bson.Marshal(resultBson)
-	
+
 	if err := bson.Unmarshal(bsonBytes, &result); err != nil {
 		fmt.Println(fmt.Sprintf("Failed unmarshall entity with id: '%s'", entity.InsertedID), err)
 		return nil
