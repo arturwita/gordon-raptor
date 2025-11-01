@@ -98,6 +98,7 @@ func (repo *recipeRepository) UpdateRecipe(id string, dto *contracts.UpdateRecip
 		"$set": bson.M{
 			"name":        dto.Name,
 			"ingredients": dto.Ingredients,
+			"description": dto.Description,
 			"updatedAt":   primitive.NewDateTimeFromTime(time.Now()),
 		},
 	}

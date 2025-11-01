@@ -5,6 +5,7 @@ type RecipeDto struct {
 	Name        string            `json:"name"`
 	Ingredients map[string]string `json:"ingredients"`
 	Picture     *string           `json:"picture,omitempty"`
+	Description *string           `json:"description,omitempty"`
 	CreatedAt   string            `json:"createdAt"`
 	UpdatedAt   string            `json:"updatedAt"`
 }
@@ -13,6 +14,7 @@ type CreateRecipeBodyDto struct {
 	Name        string            `form:"name" json:"name" binding:"required"`
 	Ingredients map[string]string `form:"ingredients" json:"ingredients" binding:"required"`
 	Picture     *string           `form:"picture" json:"picture" binding:"omitempty,url"`
+	Description *string           `form:"description" json:"description" binding:"omitempty"`
 }
 
 type CreateRecipeResponseDto struct {
@@ -32,6 +34,7 @@ type GetRecipesResponseDto struct {
 
 type UpdateRecipeBodyDto struct {
 	Name        string            `form:"name" json:"name" binding:"required"`
+	Description *string           `form:"description" json:"description" binding:"omitempty"`
 	Ingredients map[string]string `form:"ingredients" json:"ingredients" binding:"required"`
 }
 

@@ -4,6 +4,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
@@ -30,6 +31,7 @@ export const ConfirmDialog = ({
       ></button>
       <DialogHeader>
         <DialogTitle>{title}</DialogTitle>
+        <DialogDescription />
       </DialogHeader>
       <p className="text-sm text-gray-600 dark:text-gray-300">{message}</p>
       <DialogFooter className="flex justify-end gap-2 mt-4">

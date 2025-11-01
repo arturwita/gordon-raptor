@@ -1,10 +1,11 @@
-import { useState, type FC, type FormEvent } from "react";
+import { useEffect, useState, type FC, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -71,6 +72,25 @@ export const RecipeForm: FC<RecipeFormProps> = ({
     onSubmit(payload);
   };
 
+  useEffect(() => {
+    if (initialData) {
+      setName(initialData.name ?? "");
+      setDescription(initialData.description ?? "");
+      setPicture(initialData.picture ?? "");
+      setIngredients(
+        Object.entries(initialData.ingredients).map(([name, quantity]) => ({
+          name,
+          quantity,
+        }))
+      );
+    } else {
+      setName("");
+      setDescription("");
+      setPicture("");
+      setIngredients([{ name: "", quantity: "" }]);
+    }
+  }, [initialData]);
+
   return (
     <Dialog open={open} onOpenChange={onCancel}>
       <DialogContent className="max-w-lg">
@@ -83,6 +103,7 @@ export const RecipeForm: FC<RecipeFormProps> = ({
           <DialogTitle>
             {initialData ? "Edit Recipe" : "Add Recipe"}
           </DialogTitle>
+          <DialogDescription />
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 mt-2">
