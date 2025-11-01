@@ -7,7 +7,7 @@ interface RecipeCardProps {
   onDetails: () => void;
 }
 
-const defaultPictureUrl = "public/logo.png";
+const defaultPictureUrl = "logo.png";
 
 export const RecipeCard: FC<RecipeCardProps> = ({ recipe, onDetails }) => {
   return (
