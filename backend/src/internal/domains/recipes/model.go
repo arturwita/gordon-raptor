@@ -12,6 +12,7 @@ type RecipeModel struct {
 	Name        string             `bson:"name" json:"name"`
 	Ingredients map[string]string  `bson:"ingredients" json:"ingredients"`
 	Picture     *string            `bson:"picture,omitempty" json:"picture,omitempty"`
+	Description *string            `bson:"description,omitempty" json:"description,omitempty"`
 	CreatedAt   primitive.DateTime `bson:"createdAt" json:"createdAt"`
 	UpdatedAt   primitive.DateTime `bson:"updatedAt" json:"updatedAt"`
 }
@@ -24,6 +25,7 @@ func NewRecipe(dto *contracts.CreateRecipeBodyDto) *RecipeModel {
 		Name:        dto.Name,
 		Ingredients: dto.Ingredients,
 		Picture:     dto.Picture,
+		Description: dto.Description,
 		CreatedAt:   now,
 		UpdatedAt:   now,
 	}

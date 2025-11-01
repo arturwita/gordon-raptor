@@ -12,6 +12,7 @@ import (
 	tests_mocks "gordon-raptor/src/internal/tests/mocks"
 	tests_utils "gordon-raptor/src/internal/tests/utils"
 	"gordon-raptor/src/pkg/db"
+	"gordon-raptor/src/pkg/utils"
 
 	"github.com/stretchr/testify/assert"
 
@@ -37,7 +38,8 @@ func TestCreateRecipe(t *testing.T) {
 
 		// given
 		expected := contracts.CreateRecipeBodyDto{
-			Name: "spaghetti bolognese",
+			Name:        "spaghetti bolognese",
+			Description: utils.ToStrPointer("a perfect recipe for a date with a ragazza italiana"),
 			Ingredients: map[string]string{
 				"pasta": "100g",
 				"meat":  "100g",
@@ -60,6 +62,7 @@ func TestCreateRecipe(t *testing.T) {
 		assert.NoError(t, err)
 
 		assert.Equal(t, expected.Name, responseBody.Recipe.Name)
+		assert.Equal(t, expected.Description, responseBody.Recipe.Description)
 		assert.Equal(t, expected.Ingredients, responseBody.Recipe.Ingredients)
 		assert.NotEmpty(t, responseBody.Recipe.Id)
 		assert.NotEmpty(t, responseBody.Recipe.CreatedAt)

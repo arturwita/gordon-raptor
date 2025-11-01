@@ -38,33 +38,47 @@ export const Topbar: FC<TopbarProps> = ({ user, onLogout }) => {
       <div className="flex items-center gap-6">
         <ThemeButton />
 
-        <DropdownMenu>
-          <DropdownMenuTrigger className="flex items-center gap-3 focus:outline-none">
-            <div className="text-right leading-tight">
-              <div className="font-semibold text-gray-900 dark:text-gray-100">
-                {getUserDisplayName(user)}
+        {user ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger className="flex items-center gap-3 focus:outline-none">
+              <div className="text-right leading-tight">
+                <div className="font-semibold text-gray-900 dark:text-gray-100">
+                  {getUserDisplayName(user)}
+                </div>
+                <div className="text-xs text-gray-600 dark:text-gray-400">
+                  {user?.email}
+                </div>
               </div>
-              <div className="text-xs text-gray-600 dark:text-gray-400">
-                {user?.email}
-              </div>
-            </div>
 
-            <img
-              src={user?.picture}
-              alt="picture"
-              className="w-10 h-10 rounded-full border dark:border-gray-700"
-            />
-          </DropdownMenuTrigger>
+              <img
+                src={user?.picture}
+                alt="picture"
+                className="w-10 h-10 rounded-full border dark:border-gray-700"
+              />
+            </DropdownMenuTrigger>
 
-          <DropdownMenuContent align="end" className="w-40">
-            <DropdownMenuItem onClick={onLogout}>Log out</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+            <DropdownMenuContent align="end" className="w-40">
+              <DropdownMenuItem onClick={onLogout}>Log out</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : (
+          <div className="w-10 h-10 rounded-full bg-gray-300 dark:bg-gray-700 animate-pulse" />
+        )}
       </div>
     </header>
   );
 };
 
-const getUserDisplayName = (
-  user: Pick<UserJwtPayload, "firstName" | "lastName"> | undefined
-) => `${user?.firstName} ${user?.lastName}`.trim() || "Anonymous";
+const getUserDisplayName = (user?: {
+  firstName?: string;
+  lastName?: string;
+}) => {
+  const defaultValue = "Anonymous";
+  if (!user) return defaultValue;
+
+  const first = user.firstName?.trim();
+  const last = user.lastName?.trim();
+  const fullName = [first, last].filter(Boolean).join(" ");
+
+  return fullName || defaultValue;
+};

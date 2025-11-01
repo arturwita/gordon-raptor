@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { RecipeCard } from "@/components/recipes/RecipeCard";
 import { RecipeDrawer } from "@/components/recipes/RecipeDrawer";
-import { Loader2, Search } from "lucide-react";
+import { Loader2, Search, Pencil, Trash2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import debounce from "lodash.debounce";
 import {
@@ -9,15 +9,21 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "../components/ui/input-group";
-import type { GetRecipesResponseDto, RecipeDto } from "../types/recipe";
+import type {
+  GetRecipesResponseDto,
+  RecipeDto,
+  RecipeInput,
+} from "../types/recipe";
 import { appConfig } from "../lib/config";
 import { useAuth } from "../context/AuthContext";
 import { Topbar } from "../components/layout/Topbar";
+import { RecipeForm } from "@/components/recipes/RecipeForm";
+import { ConfirmDialog } from "../components/layout/ConfirmDialog";
 
 const LIMIT_OPTIONS = [5, 10, 20] as const;
 
 const Recipes = () => {
-  const { token, logout, user } = useAuth();
+  const { token, logout, user, isAdmin } = useAuth();
 
   const [recipes, setRecipes] = useState<RecipeDto[]>([]);
   const [loading, setLoading] = useState(true);
@@ -29,12 +35,26 @@ const Recipes = () => {
   const [search, setSearch] = useState("");
   const [selectedRecipe, setSelectedRecipe] = useState<RecipeDto | null>(null);
 
-  const debouncedFetch = useCallback(
-    debounce((page, limit, search) => {
-      fetchRecipes(page, limit, search);
-    }, 200),
-    []
-  );
+  const [showForm, setShowForm] = useState(false);
+  const [editingRecipe, setEditingRecipe] = useState<RecipeDto | null>(null);
+  const [deletingRecipe, setDeletingRecipe] = useState<RecipeDto | null>(null);
+
+  const updateQueryParam = (key: string, value: string | null) => {
+    const params = new URLSearchParams(window.location.search);
+
+    if (value === null || value === "") {
+      params.delete(key);
+    } else {
+      params.set(key, value);
+    }
+
+    const queryString = params.toString();
+    const newUrl = queryString
+      ? `${window.location.pathname}?${queryString}`
+      : window.location.pathname;
+
+    window.history.replaceState({}, "", newUrl);
+  };
 
   const fetchRecipes = async (page: number, limit: number, search: string) => {
     try {
@@ -66,9 +86,72 @@ const Recipes = () => {
     }
   };
 
+  const debouncedFetch = useCallback(
+    debounce((page, limit, search) => {
+      fetchRecipes(page, limit, search);
+    }, 200),
+    []
+  );
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const editId = params.get("edit");
+
+    if (!editId) return;
+
+    console.log(recipes);
+
+    if (recipes.length === 0) return;
+
+    const found = recipes.find((recipe) => recipe.id === editId);
+    if (!found) return;
+
+    setEditingRecipe(found);
+    setShowForm(true);
+  }, [recipes]);
+
   useEffect(() => {
     debouncedFetch(page, limit, search);
   }, [page, limit, search]);
+
+  const handleSubmit = async (data: RecipeInput) => {
+    const url = editingRecipe
+      ? `${appConfig.baseApiUrl}/recipes/${editingRecipe.id}`
+      : `${appConfig.baseApiUrl}/recipes`;
+    const method = editingRecipe ? "PUT" : "POST";
+
+    await fetch(url, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    closeForm();
+    debouncedFetch(page, limit, search);
+  };
+
+  const closeForm = () => {
+    setShowForm(false);
+    setEditingRecipe(null);
+
+    updateQueryParam("edit", null);
+  };
+
+  const openEditForm = (recipe: RecipeDto) => {
+    const params = new URLSearchParams(window.location.search);
+    params.set("edit", recipe.id.toString());
+    window.history.replaceState(
+      {},
+      "",
+      `${window.location.pathname}?${params}`
+    );
+
+    setEditingRecipe(recipe);
+    setShowForm(true);
+  };
 
   return (
     <div className="min-h-screen px-6 py-6 bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
@@ -90,6 +173,18 @@ const Recipes = () => {
             </InputGroupAddon>
           </InputGroup>
         </div>
+
+        {isAdmin && (
+          <Button
+            onClick={() => {
+              updateQueryParam("edit", null);
+              setShowForm(true);
+            }}
+            className="flex items-center gap-2"
+          >
+            <Plus className="h-4 w-4" /> Add a recipe
+          </Button>
+        )}
 
         <div className="flex items-center gap-4 ml-auto">
           <div className="flex items-center gap-2">
@@ -139,11 +234,30 @@ const Recipes = () => {
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {recipes.map((recipe) => (
-            <RecipeCard
-              key={recipe.id}
-              recipe={recipe}
-              onDetails={() => setSelectedRecipe(recipe)}
-            />
+            <div key={recipe.id} className="relative">
+              <RecipeCard
+                recipe={recipe}
+                onDetails={() => setSelectedRecipe(recipe)}
+              />
+              {isAdmin && (
+                <div className="absolute top-3 right-3 flex gap-2">
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => openEditForm(recipe)}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => setDeletingRecipe(recipe)}
+                  >
+                    <Trash2 className="h-4 w-4 text-red-500" />
+                  </Button>
+                </div>
+              )}
+            </div>
           ))}
         </div>
       )}
@@ -152,6 +266,33 @@ const Recipes = () => {
         <RecipeDrawer
           recipe={selectedRecipe}
           onClose={() => setSelectedRecipe(null)}
+        />
+      )}
+
+      <RecipeForm
+        open={showForm}
+        initialData={editingRecipe ?? undefined}
+        onCancel={closeForm}
+        onSubmit={(data) => handleSubmit(data)}
+      />
+
+      {deletingRecipe && (
+        <ConfirmDialog
+          open={!!deletingRecipe}
+          title="Delete this recipe?"
+          message={`Are you sure you want to delete "${deletingRecipe.name}"?`}
+          onCancel={() => setDeletingRecipe(null)}
+          onConfirm={async () => {
+            await fetch(
+              `${appConfig.baseApiUrl}/recipes/${deletingRecipe.id}`,
+              {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${token}` },
+              }
+            );
+            setDeletingRecipe(null);
+            fetchRecipes(page, limit, search);
+          }}
         />
       )}
     </div>

@@ -22,13 +22,13 @@ func IsAdminMiddleware() gin.HandlerFunc {
 
 		jwtClaims, ok := claims.(*auth.JwtClaims)
 		if !ok {
-			fmt.Println("failed to cast claims", claims)
+			fmt.Println("Failed to cast claims", claims)
 			context.AbortWithStatusJSON(customError.Status, contracts.ErrorResponse{Message: customError.Message})
 			return
 		}
 
 		if jwtClaims.Role != users.AdminRole {
-			fmt.Println("failed to assert role")
+			fmt.Println("Failed to assert role")
 			context.AbortWithStatusJSON(customError.Status, contracts.ErrorResponse{Message: customError.Message})
 			return
 		}

@@ -6,12 +6,13 @@ import {
   type FC,
 } from "react";
 import { jwtDecode } from "jwt-decode";
-import type { UserJwtPayload } from "../types/user";
+import { UserRole, type UserJwtPayload } from "../types/user";
 import { AppRoutes } from "../routes/AppRoutes";
 
 interface AuthContextType {
   user: UserJwtPayload | null;
   token: string | null;
+  isAdmin: boolean;
   login: (token: string) => void;
   logout: () => void;
 }
@@ -39,14 +40,15 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const logout = () => {
     setUser(null);
     setToken(null);
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
+    localStorage.clear();
 
-    window.location.href = AppRoutes.Home;
+    window.location.replace(AppRoutes.Home);
   };
 
+  const isAdmin = user?.role === UserRole.Admin;
+
   return (
-    <AuthContext.Provider value={{ user, token, login, logout }}>
+    <AuthContext.Provider value={{ user, token, login, logout, isAdmin }}>
       {children}
     </AuthContext.Provider>
   );

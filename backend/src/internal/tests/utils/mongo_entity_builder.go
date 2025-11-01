@@ -39,27 +39,22 @@ func (builder *GenericEntityBuilder[T]) OverrideProps(props map[string]any) *Gen
 }
 
 func (builder *GenericEntityBuilder[T]) Build() *T {
-	fmt.Println("ENTERING BUILD FUNCTION", builder.entity)
 	entity, err := builder.collection.InsertOne(context.Background(), builder.entity)
-	fmt.Println("INSERTED ENTITY", entity.InsertedID)
 	if err != nil {
 		fmt.Println(fmt.Sprintf("Failed to save entity with id: '%s'", entity.InsertedID), err)
 		return nil
 	}
 
-	fmt.Println("MARSHALLING")
-	resultBson := builder.entity
 	var result T
+	resultBson := builder.entity
 	bsonBytes, _ := bson.Marshal(resultBson)
-	fmt.Println("UNMARSHALLING")
+
 	if err := bson.Unmarshal(bsonBytes, &result); err != nil {
 		fmt.Println(fmt.Sprintf("Failed unmarshall entity with id: '%s'", entity.InsertedID), err)
 		return nil
 	}
 
-	fmt.Println("MAKING JSON")
 	builder.entity = make(bson.M)
-	fmt.Println("COPYING")
 	maps.Copy(builder.entity, builder.defaultValues)
 
 	return &result

@@ -12,6 +12,7 @@ func MapToRecipeDto(recipe *RecipeModel) *contracts.RecipeDto {
 		Name:        recipe.Name,
 		Ingredients: recipe.Ingredients,
 		Picture:     recipe.Picture,
+		Description: recipe.Description,
 		CreatedAt:   recipe.CreatedAt.Time().Format(time.RFC3339),
 		UpdatedAt:   recipe.UpdatedAt.Time().Format(time.RFC3339),
 	}

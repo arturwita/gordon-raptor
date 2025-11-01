@@ -1,6 +1,6 @@
 export type BasePagination = {
   limit: number;
-  totalDocs: number;
+  totalItems: number;
   nextPage: number | null;
   hasNextPage: boolean;
   hasPrevPage: boolean;
