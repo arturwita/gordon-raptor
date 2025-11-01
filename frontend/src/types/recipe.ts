@@ -10,6 +10,8 @@ export type RecipeDto = {
   updatedAt: string;
 };
 
+export type RecipeInput = Omit<RecipeDto, "id" | "createdAt" | "updatedAt">;
+
 export type GetRecipesResponseDto = {
   recipes: RecipeDto[];
   meta: BasePagination;
